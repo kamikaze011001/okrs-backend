@@ -47,6 +47,7 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public ResponseEntity<PagingRes<NotificationResponse>> list(@Validated() final PagingReq pagingReq){
+        log.info("(list)");
         final Page<NotificationResponse> notificationResponses = service.list(getUserId(), pagingReq.makePageable());
         return new ResponseEntity<>(PagingRes.of(notificationResponses) , HttpStatus.OK);
     }

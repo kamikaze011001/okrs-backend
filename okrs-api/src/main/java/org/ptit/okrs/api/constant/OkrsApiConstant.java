@@ -29,4 +29,7 @@ public class OkrsApiConstant {
     public static final String USER_BASE_URL = API_PREFIX + API_VERSION + USER;
     public static final String NOTIFICATION_BASE_URL = API_PREFIX + API_VERSION + NOTIFICATION;
   }
+
+  public static final String NOTIFICATION_CONTENT_OBJECTIVE = "org.ptit.okrs.api.scheduler.NotificationEndDateSchedule.contentObjective";
+  public static final String NOTIFICATION_CONTENT_KEYRESULT = "org.ptit.okrs.api.scheduler.NotificationEndDateSchedule.contentKeyResult";
 }

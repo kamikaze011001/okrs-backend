@@ -2,15 +2,23 @@ package org.ptit.okrs.api.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.ptit.okrs.core.service.KeyResultService;
 import org.ptit.okrs.core.service.NotificationService;
 import org.ptit.okrs.core.service.ObjectiveService;
 import org.ptit.okrs.core_util.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace;
+import static org.ptit.okrs.api.constant.OkrsApiConstant.NOTIFICATION_CONTENT_KEYRESULT;
+import static org.ptit.okrs.api.constant.OkrsApiConstant.NOTIFICATION_CONTENT_OBJECTIVE;
 
 @Component
 @RequiredArgsConstructor
@@ -30,56 +38,68 @@ public class NotificationEndDateSchedule {
 
     private final KeyResultService keyResultService;
 
-    private String contentObjective = "Your objective has expired";
+    private final MessageSource messageSource;
 
-    private String contentKeyResult = "Your KeyResult has expired";
-
-    String usedId1;
-
-    String usedId2;
-
-    @Scheduled(cron = "${application.schedule.notification.delete-overdue.cron:0 0 0 * * *}")
+    @Scheduled(fixedRate = 10000)
     public void returnNotificationScheduleObjective() {
         log.info("(returnNotificationSchedule)enable: {}", enable);
-        if (!enable) {
-            return;
-        }
-
-        try {
+        enable();
             int page = 0;
             while (true) {
                 var objectives = objectiveService.searchByEndDate(DateUtils.getCurrentDateInteger(), page, size);
-                if(!objectives.isEmpty() ) {
-                    notificationService.create(contentObjective, usedId1);
-                }
+                execute(NOTIFICATION_CONTENT_OBJECTIVE,objectives);
+
                 if (objectives.size() < size) {
                     break;
                 }
-                page ++;
+                page++;
             }
-        } catch (Exception ex) {
-            log.error("()ex: {}", getFullStackTrace(ex));
+        }
+
+
+    @Scheduled(fixedRate = 10000)
+    public void returnNotificationScheduleKeyResult() {
+        log.info("(returnNotificationSchedule)enable: {}", enable);
+        enable();
+        int page = 0;
+        while (true) {
+            var keyResult = keyResultService.searchByEndDate(DateUtils.getCurrentDateInteger(), page, size);
+            execute(NOTIFICATION_CONTENT_KEYRESULT,keyResult);
+            if (keyResult.size() < size) {
+                break;
+            }
+            page++;
         }
     }
 
-    @Scheduled(cron = "${application.schedule.notification.delete-overdue.cron:0 0 0 * * *}")
-    public void returnNotificationScheduleKeyResult() {
-        log.info("(returnNotificationSchedule)enable: {}", enable);
+    private String getContent(String code, Map<String, String> paramMaps) {
+            String content = messageSource.getMessage(code, null, null);
+            for (String key : paramMaps.keySet()) {
+                content = content.replace(getParamKey(key),paramMaps.get(key));
+            }
+            return content;
+    }
+
+    private String getParamKey(String key) {
+        return "%" + key + "%";
+    }
+
+    private void enable() {
         if (!enable) {
             return;
         }
+    }
 
+    private void execute(String contents, List<NotificationSchedule> notificationSchedules) {
         try {
-            int page = 0;
-            while (true) {
-                var keyResult = keyResultService.searchByEndDate(DateUtils.getCurrentDateInteger(), page, size);
-                if (!keyResult.isEmpty()) {
-                    notificationService.create(contentKeyResult, usedId2);
+            Map<String, String> paramMaps = new HashMap<>();
+            if (!notificationSchedules.isEmpty()) {
+                for (NotificationSchedule n : notificationSchedules) {
+                    paramMaps.put("title", n.getTitle());
+                    paramMaps.put("endDate", String.valueOf(n.getEndDate()));
+                    String content = getContent(contents, paramMaps);
+                    notificationService.create(content, n.getUserId());
                 }
-                if (keyResult.size() < size) {
-                    break;
-                }
-                page ++;
             }
         } catch (Exception ex) {
             log.error("()ex: {}", getFullStackTrace(ex));

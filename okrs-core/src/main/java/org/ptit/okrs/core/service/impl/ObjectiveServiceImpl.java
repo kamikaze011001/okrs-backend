@@ -11,6 +11,7 @@ import org.ptit.okrs.core.exception.OkrsKeyResultPeriodTimeException;
 import org.ptit.okrs.core.model.ObjectiveDetailResponse;
 import org.ptit.okrs.core.model.ObjectiveResponse;
 import org.ptit.okrs.core.repository.ObjectiveRepository;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.ptit.okrs.core.service.CacheObjectiveService;
 import org.ptit.okrs.core.service.KeyResultService;
 import org.ptit.okrs.core.service.ObjectiveService;
@@ -171,7 +172,7 @@ public class ObjectiveServiceImpl extends BaseServiceImpl<Objective> implements 
   }
 
   @Override
-  public List<Objective> searchByEndDate(Integer date, int page, int size) {
+  public List<NotificationSchedule> searchByEndDate(Integer date, int page, int size) {
     log.debug("(searchByEndDate)date: {}, page: {}, size: {}", date, page, size);
     return repository.findByEndDate(date, PageRequest.of(page, size)).getContent();
   }

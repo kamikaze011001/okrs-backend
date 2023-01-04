@@ -7,6 +7,8 @@ import org.ptit.okrs.core.model.UserResponse;
 import org.ptit.okrs.core.service.base.BaseService;
 import org.springframework.core.io.InputStreamResource;
 
+import java.util.List;
+
 public interface UserService extends BaseService<User> {
 
   /**
@@ -56,4 +58,6 @@ public interface UserService extends BaseService<User> {
    * @return avatar of user is saved in server
    */
   InputStreamResource getAvatar(String userId);
+
+  List<String> searchUserId(int page, int size);
 }

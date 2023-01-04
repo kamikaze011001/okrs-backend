@@ -3,6 +3,7 @@ package org.ptit.okrs.core.repository;
 import java.util.List;
 import org.ptit.okrs.core.entity.Objective;
 import org.ptit.okrs.core.repository.base.BaseRepository;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +17,6 @@ public interface ObjectiveRepository extends BaseRepository<Objective> {
 
   Optional<Objective> findByIdAndUserId(String id, String userId);
 
-  @Query("select o from Objective o where :date - o.endDate >= 0")
-  Page<Objective> findByEndDate(Integer date, Pageable pageable);
+  @Query(value = "select new org.ptit.okrs.core.repository.projection.NotificationSchedule(o.userId, o.title, o.endDate) from Objective o where :date - o.endDate >= 0")
+  Page<NotificationSchedule> findByEndDate(Integer date, Pageable pageable);
 }

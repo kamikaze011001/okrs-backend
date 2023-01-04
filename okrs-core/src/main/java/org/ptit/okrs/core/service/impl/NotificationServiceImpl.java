@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 public class NotificationServiceImpl extends BaseServiceImpl<Notification> implements NotificationService {
@@ -46,11 +47,9 @@ public class NotificationServiceImpl extends BaseServiceImpl<Notification> imple
   @Override
   public NotificationResponse getById(String id) {
     log.info("(getById)id: {}", id);
-    if (!isExist(id)) {
-      log.error("(getById)id: {} not found", id);
-      throw new NotFoundException(id, Notification.class.getSimpleName());
-    }
-    return NotificationResponse.from(find(id));
+    return repository.findById(id)
+            .map(NotificationResponse::from)
+            .orElseThrow(NotFoundException::new);
 
   }
 
@@ -77,7 +76,7 @@ public class NotificationServiceImpl extends BaseServiceImpl<Notification> imple
   public NotificationResponse update(String id, String content, String userId) {
     log.info("(update)id: {}, content: {}, userId: {}", id, content, userId);
     var notification = find(id);
-    if (notification == null) {
+    if (Objects.isNull(notification)) {
       log.error("(update)id: {} not found", id);
       throw new NotFoundException(id, Notification.class.getSimpleName());
     }

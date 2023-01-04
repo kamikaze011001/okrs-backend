@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.ptit.okrs.core.entity.KeyResult;
 import org.ptit.okrs.core.repository.base.BaseRepository;
 import org.ptit.okrs.core.repository.projection.KeyResultProjection;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -47,6 +48,6 @@ public interface KeyResultRepository extends BaseRepository<KeyResult> {
   @Query("update KeyResult kr set kr.progress = :progress where kr.id = :id")
   void updateProgress(String id, Integer progress);
 
-  @Query("select k from KeyResult k where :date - k.endDate >= 0")
-  Page<KeyResult> findByEndDate(Integer date, Pageable pageable);
+  @Query(value = "select new org.ptit.okrs.core.repository.projection.NotificationSchedule(k.userId, k.title, k.endDate) from KeyResult k where :date - k.endDate >= 0")
+  Page<NotificationSchedule> findByEndDate(Integer date, Pageable pageable);
 }
