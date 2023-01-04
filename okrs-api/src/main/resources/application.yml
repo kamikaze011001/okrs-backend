@@ -1,0 +1,79 @@
+application:
+
+  ### AUTHENTICATION
+  authentication:
+    access_token:
+      jwt_secret: Z8GJ64eimY
+      life_time: 3600000 # milliseconds
+    refresh_token:
+      jwt_secret: Z8GJ64eimY
+      life_time: 3600000
+
+    #REDIS(cache)
+    redis:
+      otp_time_out: 3
+
+  i18n:
+    resources:
+      - classpath:okrs-core/message
+      - classpath:okrs-api/message
+      - classpath:core-exception/message
+      - classpath:core-upload/message
+      - classpath:core-api-exception/message
+      - classpath:core-authentication/message
+
+  #UPLOAD_FILE
+  upload:
+    path:
+      file:
+        storage: ${FILE_STORAGE_PATH:}
+  #MAIL
+  email:
+    from: ${SPRING_EMAIL_FROM:}
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: okrs-service
+  #LIQUIBASE
+  liquibase:
+    changelog: classpath:/database.migration/master-changelog.xml
+  #DATABASE
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  #SWAGGER
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  #JPA
+  jpa:
+    show-sql: true
+  #FILE(Specify the size of the file in MB)
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+  ## REDIS
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+  #MAIL
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: ${SPRING_EMAIL_USERNAME:}
+    password: ${SPRING_EMAIL_PASSWORD:}
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    test-connection: false

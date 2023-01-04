@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>core</artifactId>
+
+  <modules>
+    <module>core-authentication</module>
+    <module>core-email</module>
+    <module>core-exception</module>
+    <module>core-api-exception</module>
+    <module>core-swagger</module>
+    <module>core-util</module>
+    <module>core-upload</module>
+    <module>core-audit</module>
+    <module>core-redis</module>
+  </modules>
+
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
+
+  <parent>
+    <artifactId>okrs-backend</artifactId>
+    <groupId>org.ptit.okrs</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+</project>
