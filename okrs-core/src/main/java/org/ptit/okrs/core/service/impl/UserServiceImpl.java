@@ -2,6 +2,7 @@ package org.ptit.okrs.core.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.ptit.okrs.core.service.base.impl.BaseServiceImpl;
 import org.ptit.okrs.core_exception.InternalServerError;
 import org.ptit.okrs.core_exception.NotFoundException;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -155,5 +157,11 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements UserServic
       log.error("(create)email: {} conflict data", email);
       throw new EmailAlreadyExistsException(email);
     }
+  }
+
+  @Override
+  public List<String> searchUserId(int page, int size) {
+    log.debug("list userId");
+    return repository.findByUserId(PageRequest.of(page, size)).getContent();
   }
 }

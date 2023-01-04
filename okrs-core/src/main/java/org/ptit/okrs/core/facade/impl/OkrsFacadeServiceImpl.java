@@ -22,7 +22,7 @@ public class OkrsFacadeServiceImpl implements OkrsFacadeService {
 
   private final DailyPlanService dailyPlanService;
 
-  private String content = "Your daily plan status has been updated";
+  private String content = "org.ptit.okrs.core.facade.impl.OkrsFacadeServiceImpl";
 
   private final NotificationService notificationService;
 

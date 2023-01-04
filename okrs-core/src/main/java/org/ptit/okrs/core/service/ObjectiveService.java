@@ -6,6 +6,7 @@ import org.ptit.okrs.core.constant.OkrsType;
 import org.ptit.okrs.core.entity.Objective;
 import org.ptit.okrs.core.model.ObjectiveDetailResponse;
 import org.ptit.okrs.core.model.ObjectiveResponse;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.ptit.okrs.core.service.base.BaseService;
 
 public interface ObjectiveService extends BaseService<Objective> {
@@ -88,6 +89,6 @@ public interface ObjectiveService extends BaseService<Objective> {
    */
   void validateExist(String objectiveId);
 
-  List<Objective> searchByEndDate(Integer date, int page, int size);
+  List<NotificationSchedule> searchByEndDate(Integer date, int page, int size);
 
 }

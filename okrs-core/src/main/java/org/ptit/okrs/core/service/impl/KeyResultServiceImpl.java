@@ -8,6 +8,7 @@ import org.ptit.okrs.core.entity.KeyResult;
 import org.ptit.okrs.core.exception.ExistedKeyResultTitleException;
 import org.ptit.okrs.core.model.KeyResultResponse;
 import org.ptit.okrs.core.repository.KeyResultRepository;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.ptit.okrs.core.service.KeyResultService;
 import org.ptit.okrs.core.service.base.impl.BaseServiceImpl;
 import org.ptit.okrs.core_exception.ForbiddenException;
@@ -169,7 +170,7 @@ public class KeyResultServiceImpl extends BaseServiceImpl<KeyResult> implements 
   }
 
   @Override
-  public List<KeyResult> searchByEndDate(Integer date, int page, int size) {
+  public List<NotificationSchedule> searchByEndDate(Integer date, int page, int size) {
     log.debug("(searchByEndDate)date: {}, page: {}, size: {}", date, page, size);
     return repository.findByEndDate(date, PageRequest.of(page, size)).getContent();
   }

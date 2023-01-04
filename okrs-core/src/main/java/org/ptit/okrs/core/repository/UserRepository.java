@@ -2,6 +2,8 @@ package org.ptit.okrs.core.repository;
 
 import org.ptit.okrs.core.entity.User;
 import org.ptit.okrs.core.repository.base.BaseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +22,7 @@ public interface UserRepository extends BaseRepository<User> {
   @Modifying
   @Query("UPDATE User SET avatar = :avatar WHERE id = :id")
   void updateAvatar(@Param("id") String userId, @Param("avatar") String pathAvatar);
+
+  @Query("Select u.id from User u")
+  Page<String> findByUserId(Pageable pageable);
 }

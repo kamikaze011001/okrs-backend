@@ -3,6 +3,7 @@ package org.ptit.okrs.core.service;
 import java.util.List;
 import org.ptit.okrs.core.entity.KeyResult;
 import org.ptit.okrs.core.model.KeyResultResponse;
+import org.ptit.okrs.core.repository.projection.NotificationSchedule;
 import org.ptit.okrs.core.service.base.BaseService;
 
 public interface KeyResultService extends BaseService<KeyResult> {
@@ -102,5 +103,5 @@ public interface KeyResultService extends BaseService<KeyResult> {
    */
   void validateExist(String keyResultId);
 
-  List<KeyResult> searchByEndDate(Integer date, int page, int size);
+  List<NotificationSchedule> searchByEndDate(Integer date, int page, int size);
 }
