@@ -1,0 +1,168 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+  <changeSet id="20221019-2349-user-table" author="Son Anh">
+    <createTable tableName="user_okrs">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="varchar(255)"/>
+      <column name="email" type="varchar(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="UQ_user_email"/>
+      </column>
+      <column name="date_of_birth" type="bigint"/>
+      <column name="gender" type="varchar(255)"/>
+      <column name="address" type="varchar(255)"/>
+      <column name="avatar" type="varchar(255)"/>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="20221019-2349-account-table" author="Son Anh">
+    <createTable tableName="account">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="username" type="varchar(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="UQ_username_account"/>
+      </column>
+      <column name="password" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_activated" type="boolean"/>
+      <column name="user_id" type="varchar(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="UQ_user_id_account"/>
+      </column>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="account" baseColumnNames="user_id"
+      constraintName="FK_account_user"
+      referencedTableName="user_okrs" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="20221019-2349-objective-table" author="Son Anh">
+    <createTable tableName="objective">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="title" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="start_date" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_date" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="time_period_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="objective" baseColumnNames="user_id"
+      constraintName="FK_objective_user"
+      referencedTableName="user_okrs" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="20221019-2349-key-result-table" author="Son Anh">
+    <createTable tableName="key_result">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="objective_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="start_date" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_date" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="progress" type="tinyint"/>
+      <column name="user_id" type="varchar(255)"/>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="key_result" baseColumnNames="user_id"
+      constraintName="FK_key_result_user"
+      referencedTableName="user_okrs" referencedColumnNames="id"/>
+    <addForeignKeyConstraint baseTableName="key_result" baseColumnNames="objective_id"
+      constraintName="FK_key_result_objective"
+      referencedTableName="objective" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="20221019-2349-daily-plan-table" author="Son Anh">
+    <createTable tableName="daily_plan">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="title" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="status" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date" type="bigint"/>
+      <column name="user_id" type="varchar(255)"/>
+      <column name="note" type="varchar(255)"/>
+      <column name="key_result_id" type="varchar(255)"/>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="daily_plan" baseColumnNames="user_id"
+      constraintName="FK_daily_plan_user"
+      referencedTableName="user_okrs" referencedColumnNames="id"/>
+    <addForeignKeyConstraint baseTableName="daily_plan" baseColumnNames="key_result_id"
+      constraintName="FK_daily_plan_key_result"
+      referencedTableName="key_result" referencedColumnNames="id"/>
+  </changeSet>
+
+  <changeSet id="20221019-2349-notification-table" author="Son Anh">
+    <createTable tableName="notification">
+      <column name="id" type="varchar(255)">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="content" type="varchar(255)"/>
+      <column name="user_id" type="varchar(255)"/>
+      <column name="created_at" type="bigint"/>
+      <column name="created_by" type="varchar(255)"/>
+      <column name="last_updated_at" type="bigint"/>
+      <column name="last_updated_by" type="varchar(255)"/>
+    </createTable>
+    <addForeignKeyConstraint baseTableName="notification" baseColumnNames="user_id"
+      constraintName="FK_notification_user"
+      referencedTableName="user_okrs" referencedColumnNames="id"/>
+  </changeSet>
+
+</databaseChangeLog>

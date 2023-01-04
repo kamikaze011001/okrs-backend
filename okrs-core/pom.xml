@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>okrs-core</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+
+  <dependencies>
+    <!-- INTERNAL -->
+    <dependency>
+      <artifactId>core-audit</artifactId>
+      <groupId>org.ptit.okrs</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>core-exception</artifactId>
+      <groupId>org.ptit.okrs</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>core-util</artifactId>
+      <groupId>org.ptit.okrs</groupId>
+    </dependency>
+    <!-- SPRING -->
+    <dependency>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+
+    <!-- DATABASE -->
+    <dependency>
+      <artifactId>mysql-connector-java</artifactId>
+      <groupId>mysql</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>h2</artifactId>
+      <groupId>com.h2database</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+    </dependency>
+
+    <!-- MIGRATION -->
+    <dependency>
+      <artifactId>liquibase-core</artifactId>
+      <groupId>org.liquibase</groupId>
+    </dependency>
+
+    <!-- LOMBOK -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+    </dependency>
+
+    <!-- VALIDATION -->
+    <dependency>
+      <artifactId>hibernate-validator</artifactId>
+      <groupId>org.hibernate.validator</groupId>
+    </dependency>
+
+    <!-- JACKSON -->
+    <dependency>
+      <artifactId>jackson-annotations</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <version>2.13.4</version>
+    </dependency>
+
+    <!-- COMMON -->
+    <dependency>
+      <artifactId>commons-lang</artifactId>
+      <groupId>commons-lang</groupId>
+    </dependency>
+    <dependency>
+      <groupId>org.ptit.okrs</groupId>
+      <artifactId>core-redis</artifactId>
+    </dependency>
+  </dependencies>
+
+  <parent>
+    <artifactId>okrs-backend</artifactId>
+    <groupId>org.ptit.okrs</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+</project>

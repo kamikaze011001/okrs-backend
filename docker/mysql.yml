@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+  okr-mysql-db:
+    container_name: okr_mysql_db_dev
+    image: mysql
+    ports:
+      - 3307:3306
+    volumes:
+      - okrs_mysql_data:/usr/mysql/data
+    environment:
+      MYSQL_ROOT_PASSWORD: dattv@090399
+      MYSQL_DATABASE: okrs
+      MYSQL_USER: dattv
+      MYSQL_PASSWORD: dattv@090399
+
+volumes:
+  okrs_mysql_data: {}
