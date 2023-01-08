@@ -125,8 +125,8 @@ public class CoreAuthenticationConfiguration {
   }
 
   @Bean
-  public OtpService otpService(RedisTemplate<String, Object> redisTemplate, AuthAccountService accountService ) {
-    return new OtpServiceImpl(redisTemplate, redisOtpTimeOut, TimeUnit.MINUTES, accountService);
+  public OtpService otpService(RedisTemplate<String, Object> redisTemplate) {
+    return new OtpServiceImpl(redisTemplate, redisOtpTimeOut, TimeUnit.MINUTES);
   }
 
   @Bean

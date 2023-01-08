@@ -67,9 +67,9 @@ public class AuthAccountServiceImpl implements AuthAccountService {
   }
 
   @Override
-  public void activeByEmail(String email) {
-    log.info("(activeByEmail)email: {}", email);
-    repository.activeAccountByEmail(email);
+  public void activeAccount(String userId) {
+    log.info("(activeAccount)userId: {}", userId);
+    repository.activeAccount(userId);
   }
 
   @Override

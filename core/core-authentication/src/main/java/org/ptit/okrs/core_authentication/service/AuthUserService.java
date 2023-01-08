@@ -10,4 +10,6 @@ public interface AuthUserService {
   AuthUser findByEmail(String email);
 
   void validateExistedWithEmail(String email);
+
+  String findIdByEmail(String email);
 }
