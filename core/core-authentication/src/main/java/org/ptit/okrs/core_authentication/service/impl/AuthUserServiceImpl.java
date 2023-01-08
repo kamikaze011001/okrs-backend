@@ -58,4 +58,14 @@ public class AuthUserServiceImpl implements AuthUserService {
       throw new AuthUserNotFoundWithEmail(email);
     }
   }
+
+  @Override
+  public String findIdByEmail(String email) {
+    log.debug("(findUserIdByEmail)email: {}", email);
+    return repository.findIdByEmail(email)
+        .orElseThrow(() -> {
+          log.error("(findIdByEmail)email: {} not found", email);
+          throw new AuthUserNotFoundWithEmail(email);
+        });
+  }
 }

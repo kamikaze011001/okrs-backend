@@ -33,9 +33,9 @@ public interface AuthAccountRepository extends JpaRepository<AuthAccount, String
   @Modifying
   @Query(
       value =
-          "UPDATE account SET is_activated = true FROM account a INNER JOIN user_okrs u ON a.user_id = u.id WHERE u.email = :email",
+          "UPDATE account a SET is_activated = true WHERE a.user_id = :userId",
       nativeQuery = true)
-  void activeAccountByEmail(@Param("email") String email);
+  void activeAccount(@Param("userId") String userId);
 
   @Transactional
   @Modifying

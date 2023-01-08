@@ -15,12 +15,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class OtpServiceImpl extends BaseRedisServiceImpl<String> implements OtpService {
 
-  private final AuthAccountService accountService;
 
-  public OtpServiceImpl(RedisTemplate<String, Object> redisTemplate, long timeOut, TimeUnit unitTimeOut,
-      AuthAccountService accountService) {
+  public OtpServiceImpl(RedisTemplate<String, Object> redisTemplate, long timeOut, TimeUnit unitTimeOut) {
     super(redisTemplate, timeOut, unitTimeOut);
-    this.accountService = accountService;
   }
 
   @Override
@@ -35,20 +32,6 @@ public class OtpServiceImpl extends BaseRedisServiceImpl<String> implements OtpS
     if (!Objects.equals(otpCache, otpRequest)) {
       log.error("(verifyOtpForgotPassword)OTP: {} invalid", otpRequest);
       throw new OTPInvalidException();
-    }
-  }
-
-  @Override
-  public void checkOtpRedis(String email, String otp) {
-    log.info("(checkOtpRedis)email: {}, otp: {}", email, otp);
-    var otpRedis = get(email);
-    if (Objects.isNull(otpRedis)) {
-      throw new OtpNotFoundException(otp, "Otp code has expired!");
-    }
-    if (Objects.equals(otpRedis, otp)) {
-      accountService.activeByEmail(email);
-    } else {
-      throw new OtpBadRequestException(otp, "Otp code is not correct!");
     }
   }
 }

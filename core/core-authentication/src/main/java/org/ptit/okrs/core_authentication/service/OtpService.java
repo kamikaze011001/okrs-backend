@@ -11,5 +11,4 @@ public interface OtpService extends BaseRedisService<String> {
    */
   void validateOtp(String email, String otpRequest);
 
-  void checkOtpRedis(String email, String otp);
 }

@@ -28,7 +28,7 @@ import org.ptit.okrs.core_authentication.dto.response.AuthInactiveUserResponse;
 import org.ptit.okrs.core_authentication.dto.response.AuthUserForgotPasswordOtpVerifyResponse;
 import org.ptit.okrs.core_authentication.dto.response.AuthUserLoginResponse;
 import org.ptit.okrs.core_authentication.dto.response.AuthUserRegisterResponse;
-import org.ptit.okrs.core_authentication.exception.OtpNotFoundException;
+import org.ptit.okrs.core_authentication.entity.AuthUser;
 import org.ptit.okrs.core_authentication.exception.PasswordConfirmNotMatchException;
 import org.ptit.okrs.core_authentication.exception.PasswordInvalidException;
 import org.ptit.okrs.core_authentication.exception.ResetKeyInvalidException;
@@ -99,7 +99,9 @@ public class AuthFacadeServiceImpl implements AuthFacadeService {
   public void activeAccount(AuthUserActiveAccountRequest request) {
     log.info("(activeAccount)request: {}", request);
     authUserService.validateExistedWithEmail(request.getEmail());
-    otpService.checkOtpRedis(request.getEmail(), request.getOtp());
+    String idUser = authUserService.findIdByEmail(request.getEmail());
+    otpService.validateOtp(request.getEmail(), request.getOtp());
+    authAccountService.activeAccount(idUser);
   }
 
   @Override

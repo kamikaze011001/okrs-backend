@@ -15,7 +15,7 @@ public interface AuthAccountService {
   AccountUserProjection findByUsername(String username);
   AuthAccount create(String userId, String username, String password);
 
-  void activeByEmail(String email);
+  void activeAccount(String userId);
 
   /**
    * disable lock permanent of account
