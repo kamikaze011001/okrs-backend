@@ -34,6 +34,7 @@ public class DateUtils {
   }
 
   public static Integer getDate(LocalDate localDate) {
+//    System.out.println("ngày hiện tại là: " + Integer.parseInt(DATE_INTEGER_FORMATTER.format(localDate)));
     return Integer.parseInt(DATE_INTEGER_FORMATTER.format(localDate));
   }
 

@@ -26,19 +26,18 @@
     </dependency>
 
     <!-- DATABASE -->
-    <dependency>
-      <artifactId>mysql-connector-java</artifactId>
-      <groupId>mysql</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>h2</artifactId>
-      <groupId>com.h2database</groupId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <artifactId>mysql-connector-java</artifactId>-->
+<!--      <groupId>mysql</groupId>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <artifactId>h2</artifactId>-->
+<!--      <groupId>com.h2database</groupId>-->
+<!--    </dependency>-->
     <dependency>
       <artifactId>postgresql</artifactId>
       <groupId>org.postgresql</groupId>
     </dependency>
-
     <!-- MIGRATION -->
     <dependency>
       <artifactId>liquibase-core</artifactId>

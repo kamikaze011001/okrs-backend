@@ -56,7 +56,8 @@ public class ValidationUtils {
         return !validateDate(startDate)
             || !validateDate(endDate)
             || (startDate > endDate)
-            || (startDate < DateUtils.getCurrentDateInteger())
+                // fix
+            || (startDate > DateUtils.getCurrentDateInteger())
             || (endDate < DateUtils.getCurrentDateInteger());
       }
     }
