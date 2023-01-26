@@ -27,18 +27,20 @@ public class ObjectiveCreateRequest {
   private OkrsTimeType timePeriodType;
 
   public void validate() {
-    //TODO: AnhNHS check startDate and EndDat in the past
     if (ValidationUtils.validateStartDateAndEndDate(startDate, endDate)) {
       log.error(
           "(validate)startDate : {}, endDate : {} --> OkrsDateInvalidException",
-          startDate, endDate);
+          startDate, endDate
+      );
       throw new OkrsDateInvalidException(
           Objective.class.getSimpleName(), String.valueOf(startDate), String.valueOf(endDate));
     }
+
     if (checkTimePeriod()) {
       log.error(
           "(validate) startDate : {}, endDate : {}, timePeriodType : {} --> OkrsTimePeriodTypeException",
-          startDate, endDate, timePeriodType);
+          startDate, endDate, timePeriodType
+      );
       throw new OkrsTimePeriodTypeException(startDate, endDate, timePeriodType.name());
     }
   }

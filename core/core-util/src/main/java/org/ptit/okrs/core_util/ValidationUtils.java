@@ -7,7 +7,7 @@ import org.ptit.orks.core_audit.SecurityService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 @Slf4j
 public class ValidationUtils {
@@ -26,8 +26,6 @@ public class ValidationUtils {
     var dateStr = String.valueOf(date).trim();
     try {
       LocalDate.parse(dateStr, DATE_TIME_FORMATTER);
-    } catch (DateTimeParseException e) {
-      return false;
     } catch (RuntimeException e) {
       return false;
     }
@@ -43,24 +41,25 @@ public class ValidationUtils {
    * @return boolean
    */
   public static boolean validateStartDateAndEndDate(Integer startDate, Integer endDate) {
-    if (startDate == null) {
-      if (endDate != null) {
-        return validateDate(endDate);
-      } else {
-        return true;
-      }
-    } else {
-      if (endDate == null) {
-        return validateDate(startDate);
-      } else {
-        return !validateDate(startDate)
-            || !validateDate(endDate)
-            || (startDate > endDate)
-                // fix
-            || (startDate > DateUtils.getCurrentDateInteger())
-            || (endDate < DateUtils.getCurrentDateInteger());
-      }
+
+    if (Objects.isNull(startDate) && Objects.isNull(endDate)) {
+      return false;
     }
+
+    if (Objects.isNull(startDate)) {
+      return validateDate(endDate);
+    }
+
+    if (Objects.isNull(endDate)) {
+      return validateDate(startDate);
+    }
+
+    if (!validateDate(startDate) || !validateDate(endDate)) {
+      return false;
+    }
+
+    var currentDateInt = DateUtils.getCurrentDateInteger();
+    return startDate > endDate || startDate > currentDateInt || endDate < currentDateInt;
   }
 
   public static void validateForbiddenUser(String userId) {
