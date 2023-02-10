@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ptit.okrs.core.constant.Gender;
 import org.ptit.okrs.core.validation.ValidDateInteger;
+import org.ptit.okrs.core.validation.ValidEnumeration;
 import org.ptit.okrs.core.validation.ValidatePhoneNumber;
 
 @Data
@@ -16,6 +17,9 @@ public class UserUpdateRequest {
   private String phone;
   @ValidDateInteger
   private Integer dateOfBirth;
-  private Gender gender;
+
+  @ValidEnumeration(enumName = Gender.class, message = "Invalid Enum Gender Value")
+  private String gender;
+
   private String address;
 }

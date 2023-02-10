@@ -11,6 +11,7 @@ import org.ptit.okrs.api.model.request.UserCreateRequest;
 import org.ptit.okrs.api.model.request.UserUpdateAvatarRequest;
 import org.ptit.okrs.api.model.request.UserUpdateRequest;
 import org.ptit.okrs.api.model.response.OkrsResponse;
+import org.ptit.okrs.core.constant.Gender;
 import org.ptit.okrs.core.service.UserService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -51,7 +52,7 @@ public class UserController {
             userUpdateRequest.getName(),
             userUpdateRequest.getPhone(),
             userUpdateRequest.getDateOfBirth(),
-            userUpdateRequest.getGender(),
+            Gender.valueOf(userUpdateRequest.getGender()),
             userUpdateRequest.getAddress()));
   }
 
