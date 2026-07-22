@@ -27,7 +27,7 @@
   <properties>
     <java.version>11</java.version>
     <mysql.version>8.0.30</mysql.version>
-    <lombok.version>1.18.24</lombok.version>
+    <lombok.version>1.18.32</lombok.version>
     <h2.version>2.1.214</h2.version>
     <liquibase.version>4.17.0</liquibase.version>
     <swagger.version>2.7.0</swagger.version>
@@ -171,21 +171,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-<!--  <repositories>-->
-<!--    <repository>-->
-<!--      <id>gitlab-maven</id>-->
-<!--      <url>https://gitlab.com/api/v4/projects/40595068/packages/maven</url>-->
-<!--    </repository>-->
-<!--  </repositories>-->
-  <distributionManagement>
-    <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/projects/40595068/packages/maven</url>
-    </repository>
-    <snapshotRepository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/projects/40595068/packages/maven</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>
