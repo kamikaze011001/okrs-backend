@@ -54,8 +54,7 @@ public class AuthUserController {
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse login(
-      @Valid @RequestBody AuthUserLoginRequest request,
-      @RequestHeader(value = "Accept-Language", required = false) Locale locale) {
+      @Valid @RequestBody AuthUserLoginRequest request, Locale locale) {
     log.info("(login)request: {}, locale : {}", request, locale);
     return AuthResponse.of(HttpStatus.OK.value(), authFacadeService.login(request, locale));
   }

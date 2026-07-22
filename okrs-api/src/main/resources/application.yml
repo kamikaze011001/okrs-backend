@@ -3,11 +3,11 @@ application:
   ### AUTHENTICATION
   authentication:
     access_token:
-      jwt_secret: Z8GJ64eimY
-      life_time: 3600000 # milliseconds
+      jwt_secret: ${JWT_ACCESS_TOKEN_SECRET:}
+      life_time: ${JWT_ACCESS_TOKEN_LIFETIME:} # milliseconds
     refresh_token:
-      jwt_secret: Z8GJ64eimY
-      life_time: 3600000
+      jwt_secret: ${JWT_REFRESH_TOKEN_SECRET:}
+      life_time: ${JWT_REFRESH_TOKEN_LIFETIME:}
 
     #REDIS(cache)
     redis:
@@ -42,8 +42,8 @@ spring:
   #DATABASE
   datasource:
     url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    username: ${POSTGRES_USER:}
+    password: ${POSTGRES_PASSWORD:}
   #SWAGGER
   mvc:
     pathmatch:
@@ -60,8 +60,10 @@ spring:
   cache:
     type: redis
   redis:
-    host: localhost
-    port: 6379
+    host: ${SPRING_REDIS_HOST:}
+    port: ${REDIS_PORT:}
+    password: ${REDIS_PASSWORD:}
+    client-type: jedis
   #MAIL
   mail:
     default-encoding: UTF-8

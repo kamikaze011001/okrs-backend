@@ -40,7 +40,7 @@ public class NotificationEndDateSchedule {
 
     private final MessageSource messageSource;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 100000)
     public void returnNotificationScheduleObjective() {
         log.info("(returnNotificationSchedule)enable: {}", enable);
         enable();
@@ -57,7 +57,7 @@ public class NotificationEndDateSchedule {
         }
 
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 100000)
     public void returnNotificationScheduleKeyResult() {
         log.info("(returnNotificationSchedule)enable: {}", enable);
         enable();
