@@ -85,3 +85,12 @@ org:
       api:
         scheduler:
           NoteDailyPlanSchedule: Please note the daily plan
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true

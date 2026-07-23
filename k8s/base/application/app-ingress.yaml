@@ -1,0 +1,20 @@
+# CURRENTLY INGRESS DOES NOT WORK BECAUSE OF HOST FILE
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: okrs-app-ingress
+#  annotations:
+#    kubernetes.io/ingress.class: "nginx"
+#    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+#spec:
+#  rules:
+#    - host: api.okrs-app.com
+#      http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: okrs-app-service
+#                port:
+#                  number: 8080
