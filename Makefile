@@ -46,9 +46,9 @@ logs:
 	kubectl logs -l app=okrs-app -f
 
 # Get the local WSL 2 URL to test in Windows Chrome
-url:
-	@echo "🌐 Opening Minikube tunnel..."
-	minikube service okrs-app-service --url
+port-forward:
+	@echo "🌐 Forwarding okrs-app port..."
+	kubectl port-forward service/okrs-app-service 8080:8080 --address 0.0.0.0
 
 # Delete everything from the cluster
 clean:
