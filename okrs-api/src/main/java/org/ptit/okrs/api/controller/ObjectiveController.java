@@ -1,7 +1,5 @@
 package org.ptit.okrs.api.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ptit.okrs.api.constant.OkrsApiConstant.BaseUrl;
@@ -27,8 +25,6 @@ public class ObjectiveController {
   private final KeyResultService keyResultService;
   private final OkrsFacadeService okrsFacadeService;
 
-  @ApiOperation("Create new objective")
-  @ApiResponse(code = 201, response = OkrsResponse.class, message = "Successfully response.")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public OkrsResponse create(@Validated @RequestBody ObjectiveCreateRequest request) {
@@ -46,8 +42,6 @@ public class ObjectiveController {
             getUserId()));
   }
 
-  @ApiOperation("Delete an objective")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @DeleteMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse deleteById(@PathVariable("id") String id) {
@@ -56,8 +50,6 @@ public class ObjectiveController {
     return OkrsResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("Get a detail objective")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @GetMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse getById(@PathVariable("id") String id) {
@@ -65,8 +57,6 @@ public class ObjectiveController {
     return OkrsResponse.of(HttpStatus.OK.value(), service.getByIdAndUserId(id, getUserId()));
   }
 
-  @ApiOperation("Get list of all objectives")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse list() {
@@ -74,8 +64,6 @@ public class ObjectiveController {
     return OkrsResponse.of(HttpStatus.OK.value(), service.list(getUserId()));
   }
 
-  @ApiOperation("Get stats of an objective by id")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @GetMapping("/{id}/stats")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse statistic(@PathVariable("id")String id) {
@@ -83,8 +71,6 @@ public class ObjectiveController {
     return OkrsResponse.of(HttpStatus.OK.value(), okrsFacadeService.statistic(id));
   }
 
-  @ApiOperation("Update an objective")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @PutMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse update(
@@ -104,8 +90,6 @@ public class ObjectiveController {
             getUserId()));
   }
 
-  @ApiOperation("Create new key result")
-  @ApiResponse(code = 201, response = OkrsResponse.class, message = "Successfully response.")
   @PostMapping(value = "/{objective_id}/" + KEY_RESULT)
   @ResponseStatus(HttpStatus.CREATED)
   public OkrsResponse createKeyResult(
@@ -128,9 +112,6 @@ public class ObjectiveController {
             getUserId()));
   }
 
-  @ApiOperation("Delete a key result")
-  @ApiResponse(code = 200, message = "Successfully response.")
-  @DeleteMapping(value = "/{objective_id}/" + KEY_RESULT + "/{key_result_id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse deleteKeyResultById(
       @PathVariable("objective_id") String objectiveId,
@@ -142,8 +123,6 @@ public class ObjectiveController {
     return OkrsResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("Update a key result")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @PutMapping(value = "/{objective_id}/" + KEY_RESULT + "/{key_result_id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse updateKeyResult(
@@ -170,8 +149,6 @@ public class ObjectiveController {
             getUserId()));
   }
 
-  @ApiOperation("Update the progress of a key result")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @PatchMapping(value = "/{objective_id}/" + KEY_RESULT + "/{key_result_id}")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse updateKeyResultProgress(

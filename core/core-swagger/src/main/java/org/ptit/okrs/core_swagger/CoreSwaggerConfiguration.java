@@ -1,15 +1,11 @@
 package org.ptit.okrs.core_swagger;
 
+import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
-@EnableSwagger2
 public class CoreSwaggerConfiguration {
 
   private final Environment environment;
@@ -19,11 +15,13 @@ public class CoreSwaggerConfiguration {
   }
 
   @Bean
-  public Docket api() {
-    return new Docket(DocumentationType.SWAGGER_2)
-        .groupName(environment.getProperty("spring.application.name") + "api")
-        .select()
-        .apis(RequestHandlerSelectors.any())
-        .build();
+  public GroupedOpenApi api() {
+    // We grab the app name just like before, providing a fallback just in case
+    String appName = environment.getProperty("spring.application.name", "app-");
+
+    return GroupedOpenApi.builder()
+            .group(appName + "api")
+            .pathsToMatch("/**") // This is the Springdoc equivalent to RequestHandlerSelectors.any()
+            .build();
   }
 }

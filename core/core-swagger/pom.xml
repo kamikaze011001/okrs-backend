@@ -14,12 +14,8 @@
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
-      <artifactId>springfox-swagger2</artifactId>
-      <groupId>io.springfox</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <groupId>io.springfox</groupId>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
     </dependency>
   </dependencies>
 

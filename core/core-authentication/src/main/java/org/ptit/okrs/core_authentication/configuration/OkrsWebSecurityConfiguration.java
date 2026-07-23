@@ -40,11 +40,10 @@ public class OkrsWebSecurityConfiguration {
         .authorizeRequests()
         .antMatchers("/api/v1/user/login").permitAll()
         .antMatchers(
-            "/swagger-ui**",
-            "/v2/api-docs**",
-            "/webjars/**", "/error",
-            "/swagger-resources",
-            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/actuator/**",
             "/api/v1/auth/users/**"
         ).permitAll()
         .anyRequest().authenticated()

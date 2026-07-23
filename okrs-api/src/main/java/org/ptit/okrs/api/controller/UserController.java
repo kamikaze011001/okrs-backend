@@ -3,8 +3,6 @@ package org.ptit.okrs.api.controller;
 import static org.ptit.okrs.api.constant.OkrsApiConstant.BaseUrl.USER_BASE_URL;
 import static org.ptit.orks.core_audit.SecurityService.getUserId;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ptit.okrs.api.model.request.UserCreateRequest;
@@ -26,8 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final UserService service;
 
-  @ApiOperation("Create a new user")
-  @ApiResponse(code = 201, response = OkrsResponse.class, message = "Successfully response.")
   @PostMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public OkrsResponse create(@RequestBody @Validated UserCreateRequest userCreateRequest) {
@@ -39,8 +35,6 @@ public class UserController {
             userCreateRequest.getEmail()));
   }
 
-  @ApiOperation("Update a user")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @PutMapping(consumes = "application/json")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse update(@RequestBody @Validated UserUpdateRequest userUpdateRequest) {
@@ -56,8 +50,6 @@ public class UserController {
             userUpdateRequest.getAddress()));
   }
 
-  @ApiOperation("Get details a user")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping("/self")
   public OkrsResponse get() {
@@ -65,8 +57,6 @@ public class UserController {
     return OkrsResponse.of(HttpStatus.OK.value(), service.get(getUserId()));
   }
 
-  @ApiOperation("Update a user's avatar")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @PatchMapping("/self/avatar")
   @ResponseStatus(HttpStatus.OK)
   public OkrsResponse updateAvatar(@RequestBody @Validated UserUpdateAvatarRequest userUpdateAvatarRequest) {
@@ -75,8 +65,6 @@ public class UserController {
     return OkrsResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("Get a user's avatar")
-  @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = "/self/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
   public InputStreamResource getAvatar() {

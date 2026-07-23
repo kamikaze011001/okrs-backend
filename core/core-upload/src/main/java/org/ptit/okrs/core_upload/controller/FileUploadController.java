@@ -2,8 +2,6 @@ package org.ptit.okrs.core_upload.controller;
 
 import static org.ptit.okrs.core_upload.constant.CoreUploadConstant.BaseUrl.UPLOAD_BASE_URL;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ptit.okrs.core_upload.response.BaseResponse;
@@ -31,8 +29,6 @@ public class FileUploadController {
   @Value("${spring.servlet.multipart.max-file-size: 2}")
   private String maxSize;
 
-  @ApiOperation("Upload avatar to server")
-  @ApiResponse(code = 200, response = BaseResponse.class, message = "Successfully response.")
   @PostMapping(consumes = "multipart/form-data")
   @ResponseStatus(HttpStatus.OK)
   public BaseResponse uploadFile(
