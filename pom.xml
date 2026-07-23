@@ -30,7 +30,7 @@
     <lombok.version>1.18.32</lombok.version>
     <h2.version>2.1.214</h2.version>
     <liquibase.version>4.17.0</liquibase.version>
-    <swagger.version>2.7.0</swagger.version>
+    <swagger.version>1.6.15</swagger.version>
     <jwt.version>0.9.1</jwt.version>
     <hibernate-validator.version>6.0.10.Final</hibernate-validator.version>
     <common.lang>2.2</common.lang>
@@ -127,14 +127,8 @@
 
       <!-- SWAGGER -->
       <dependency>
-        <artifactId>springfox-swagger2</artifactId>
-        <groupId>io.springfox</groupId>
-        <version>${swagger.version}</version>
-      </dependency>
-
-      <dependency>
-        <artifactId>springfox-swagger-ui</artifactId>
-        <groupId>io.springfox</groupId>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
         <version>${swagger.version}</version>
       </dependency>
       <!-- JSON WEB TOKEN -->

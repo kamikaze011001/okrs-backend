@@ -1,7 +1,5 @@
 package org.ptit.okrs.api.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ptit.okrs.api.model.request.NotificationCreateRequest;
@@ -27,8 +25,6 @@ public class NotificationController {
 
     private final NotificationService service;
 
-    @ApiOperation("Create new notification")
-    @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response")
     @PostMapping(consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public OkrsResponse create(@Validated @RequestBody NotificationCreateRequest request) {
@@ -42,8 +38,6 @@ public class NotificationController {
         );
     }
 
-    @ApiOperation("Get list notification")
-    @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public ResponseEntity<PagingRes<NotificationResponse>> list(@Validated() final PagingReq pagingReq){
@@ -52,8 +46,6 @@ public class NotificationController {
         return new ResponseEntity<>(PagingRes.of(notificationResponses) , HttpStatus.OK);
     }
 
-    @ApiOperation("Get notification by id")
-    @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(path = "{id}")
     public OkrsResponse get(@PathVariable("id") String id) {
@@ -61,8 +53,6 @@ public class NotificationController {
         return OkrsResponse.of(HttpStatus.OK.value(), service.getById(id));
     }
 
-    @ApiOperation("Update notification")
-    @ApiResponse(code = 200, response = OkrsResponse.class, message = "Successfully response.")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping(path = "{id}")
     public OkrsResponse update(@PathVariable("id") String id, @Validated @RequestBody NotificationCreateRequest request) {
@@ -73,8 +63,6 @@ public class NotificationController {
                 getUserId()));
     }
 
-    @ApiOperation("Delete notification")
-    @ApiResponse(code = 200, message = "Successfully response.")
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable("id") String id) {

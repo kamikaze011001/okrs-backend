@@ -1,7 +1,5 @@
 package org.ptit.okrs.core_authentication.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
 import java.util.Locale;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +28,6 @@ public class AuthUserController {
     this.authFacadeService = authFacadeService;
   }
 
-  @ApiOperation("Step 2: User active account by otp")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/active")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse activeAccount(@Valid @RequestBody AuthUserActiveAccountRequest request) {
@@ -40,8 +36,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("Step 1: Create new user for sign up account")
-  @ApiResponse(code = 201, message = "Successfully response.")
   @PostMapping("/register")
   @ResponseStatus(HttpStatus.CREATED)
   public AuthResponse register(@Valid @RequestBody AuthUserRegisterRequest request) {
@@ -49,8 +43,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.CREATED.value(), authFacadeService.register(request));
   }
 
-  @ApiOperation("User login")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse login(
@@ -59,8 +51,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value(), authFacadeService.login(request, locale));
   }
 
-  @ApiOperation("User request forgot password")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/forgot-password")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse forgotPassword(@Valid @RequestBody AuthUserResetPasswordRequest request) {
@@ -69,8 +59,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("User verify otp forgot password")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/forgot-password/otp-verify")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse verifyOtpForgotPassword(
@@ -79,8 +67,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value(), authFacadeService.verifyOtpForgotPassword(request));
   }
 
-  @ApiOperation("User reset password")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/forgot-password/reset")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse resetPassword(@Valid @RequestBody AuthUserForgotPasswordResetRequest request) {
@@ -89,8 +75,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("Send otp to mail unlock account")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/unlock-account")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse unlockAccount(@Valid @RequestBody AuthUserSentOtpToMail request) {
@@ -99,8 +83,6 @@ public class AuthUserController {
     return AuthResponse.of(HttpStatus.OK.value());
   }
 
-  @ApiOperation("User unlock account")
-  @ApiResponse(code = 200, message = "Successfully response.")
   @PostMapping("/unlock-account/otp-verify")
   @ResponseStatus(HttpStatus.OK)
   public AuthResponse verifyOtpUnlockAccount(@Valid @RequestBody AuthUnlockAccountRequest request) {
