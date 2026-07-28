@@ -21,6 +21,7 @@ target/
 *.env
 *.env*
 **/app-secret.yaml
+**/values*.yaml
 
 ### NetBeans ###
 /nbproject/private/

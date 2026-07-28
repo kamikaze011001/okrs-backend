@@ -1,0 +1,76 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "okrs-backend.fullname" . }}-db-migrate
+  labels:
+    {{- include "okrs-backend.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "okrs-backend.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: liquibase
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion}}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Starting Spring Boot Watchdog..."
+              java -jar /app/app.jar > /tmp/app.log 2>&1 &
+              JAVA_PID=$!
+              tail -f /tmp/app.log &
+              TAIL_PID=$!
+              while true; do
+                if grep -q "Started OkrsApiApplication" /tmp/app.log; then
+                  echo "==================================================="
+                  echo "✅ LIQUIBASE FINISHED SUCCESSFULLY! KILLING JVM..."
+                  echo "==================================================="
+                  kill $JAVA_PID
+                  kill $TAIL_PID
+                  exit 0
+                fi
+
+                if ! kill -0 $JAVA_PID 2>/dev/null; then
+                  echo "❌ JAVA PROCESS CRASHED!"
+                  wait $JAVA_PID
+                  EXIT_CODE=$?
+                  kill $TAIL_PID
+                  exit $EXIT_CODE
+                fi
+
+                sleep 2
+              done
+          envFrom:
+            - configMapRef:
+                name: {{ include "okrs-backend.fullname" . }}-config
+            - secretRef:
+                name: okrs-backend-credentials
+          env:
+            - name: SPRING_MAIN_WEB_APPLICATION_TYPE
+              value: "none"
+            - name: SPRING_LIQUIBASE_ENABLED
+              value: "true"
+            - name: FILE_STORAGE_PATH
+              value: "/tmp/dummy-uploads"
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "okrs-backend.fullname" . }}-pg-app
+                  key: jdbc-uri
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "okrs-backend.fullname" . }}-pg-app
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "okrs-backend.fullname" . }}-pg-app
+                  key: password
