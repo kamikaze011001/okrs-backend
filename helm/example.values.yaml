@@ -1,0 +1,92 @@
+## Instances
+replicaCount: 1
+
+# Image
+image:
+  repository: okrs-app
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Environment variables
+env:
+  springProfile: "default"
+
+# Networking
+service:
+  type: ClusterIP
+  port: 8080
+
+# External Routing
+ingress:
+  enabled: false
+  className: "nginx"
+  hosts:
+    - host: api.okrs-project.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Compute Resources
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+# Health Checks
+probes:
+  startup:
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    failureThreshold: 20
+  liveness:
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    periodSeconds: 5
+    failureThreshold: 2
+
+persistence:
+  enabled: true
+  size: 1Gi
+  mountPath: /app/uploads
+  accessMode: ReadWriteOnce
+
+valkey:
+  enabled: true
+  auth:
+    enabled: true
+    usersExistingSecret: "okrs-backend-credentials"
+    aclUsers:
+      default:
+        permissions: "~* &* +@all"
+        passwordKey: "REDIS_PASSWORD"
+
+
+appConfig:
+  SPRING_LIQUIBASE_ENABLED: "false"
+  SPRING_REDIS_HOST: "okrs-test-valkey"
+  FILE_STORAGE_PATH: "/app/uploads"
+appSecret:
+  # ==========================================
+  # REDIS
+  # ==========================================
+  REDIS_PORT: ""
+  REDIS_PASSWORD: ""
+
+  # ==========================================
+  # JWT AUTHENTICATION
+  # ==========================================
+  JWT_ACCESS_TOKEN_SECRET: ""
+  JWT_ACCESS_TOKEN_LIFETIME: ""
+  JWT_REFRESH_TOKEN_SECRET: ""
+  JWT_REFRESH_TOKEN_LIFETIME: ""
+
+  # ==========================================
+  # EMAIL (SMTP)
+  # ==========================================
+  SPRING_EMAIL_FROM: ""
+  SPRING_EMAIL_USERNAME: ""
+  SPRING_EMAIL_PASSWORD: ""
