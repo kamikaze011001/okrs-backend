@@ -1,56 +1,56 @@
-#trigger:
-#  branches:
-#    include:
-#      - develop
-#      - main
-#  paths:
-#    include:
-#      # Advanced: Path Filtering - Only trigger on actual code/config changes
-#      - okrs-api/**
-#      - okrs-core/**
-#      - core/**
-#      - pom.xml
-#      - Dockerfile
-#    exclude:
-#      # Exclude folders that shouldn't trigger a build
-#      - helm/**
-#      - k8s/**
-#      - infrastructure/**
-#      - README.md
-#variables:
-#  dockerRegistryServiceConnection: 'acrokrsdevydycrv67hdqyc.azurecr.io'
-#  imageRepo: 'okrs-app'
-#  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-#  tag: '$(Build.SourceVersion)'
-#
-#pool:
-#  vmImage: 'ubuntu-latest'
-#
-#stages:
-#  - stage: Build
-#    displayName: 'CI'
-#    jobs:
-#      - job: CompileAndPush
-#        displayName: 'Compile Spring Boot and Push to ACR'
-#        steps:
-#          - task: Maven@4
-#            displayName: 'Maven: Clean and Package'
-#            inputs:
-#              mavenPomFile: 'pom.xml'
-#              goals: 'clean package'
-#              options: '-DskipTests'
-#              publishJUnitResults: false
-#              javaHomeOption: 'JDKVersion'
-#              jdkVersionOption: '1.11'
-#              mavenVersionOption: 'Default'
-#              mavenAuthenticateFeed: false
-#              effectivePomSkip: false
-#              sonarQubeRunAnalysis: false
-#          - task: Docker@02
-#            displayName: 'Docker: Build and Push'
-#            inputs:
-#              command: buildAndPush
-#              repository: $(imageRepository)
-#              dockerfile: $(dockerfilePath)
-#              containerRegistry: $(dockerRegistryServiceConnection)
-#              tags: $(tag)
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+  paths:
+    include:
+      # Advanced: Path Filtering - Only trigger on actual code/config changes
+      - okrs-api/**
+      - okrs-core/**
+      - core/**
+      - pom.xml
+      - Dockerfile
+    exclude:
+      # Exclude folders that shouldn't trigger a build
+      - helm/**
+      - k8s/**
+      - infrastructure/**
+      - README.md
+variables:
+  dockerRegistryServiceConnection: 'acrokrsdevydycrv67hdqyc.azurecr.io'
+  imageRepo: 'okrs-app'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.SourceVersion)'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'CI'
+    jobs:
+      - job: CompileAndPush
+        displayName: 'Compile Spring Boot and Push to ACR'
+        steps:
+          - task: Maven@4
+            displayName: 'Maven: Clean and Package'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean package'
+              options: '-DskipTests'
+              publishJUnitResults: false
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+          - task: Docker@02
+            displayName: 'Docker: Build and Push'
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: $(tag)
