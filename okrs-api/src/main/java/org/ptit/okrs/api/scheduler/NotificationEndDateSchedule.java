@@ -40,9 +40,9 @@ public class NotificationEndDateSchedule {
 
     private final MessageSource messageSource;
 
-    @Scheduled(fixedRate = 100000)
+    @Scheduled(fixedRateString = "${application.schedule.notification.noti-objective.fixed-rate:100000}")
     public void returnNotificationScheduleObjective() {
-        log.info("(returnNotificationSchedule)enable: {}", enable);
+        log.info("(returnNotificationScheduleObj)enable: {}", enable);
         enable();
             int page = 0;
             while (true) {
@@ -57,9 +57,9 @@ public class NotificationEndDateSchedule {
         }
 
 
-    @Scheduled(fixedRate = 100000)
+    @Scheduled(fixedRateString = "${application.schedule.notification.noti-kr.fixed-rate:100000}")
     public void returnNotificationScheduleKeyResult() {
-        log.info("(returnNotificationSchedule)enable: {}", enable);
+        log.info("(returnNotificationScheduleKr)enable: {}", enable);
         enable();
         int page = 0;
         while (true) {
