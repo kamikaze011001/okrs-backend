@@ -10,11 +10,10 @@ on:
       - 'core/**'
       - 'pom.xml'
       - 'Dockerfile'
-    paths-ignore:
-      - 'helm/**'
-      - 'k8s/**'
-      - 'infrastructure/**'
-      - 'README.md'
+      - '!helm/**'
+      - '!k8s/**'
+      - '!infrastructure/**'
+      - '!README.md'
 
 env:
   IMAGE_REPOSITORY: 'okrs-app'
