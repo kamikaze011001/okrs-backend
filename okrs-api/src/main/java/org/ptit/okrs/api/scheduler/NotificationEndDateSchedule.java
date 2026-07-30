@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace;
@@ -73,7 +74,7 @@ public class NotificationEndDateSchedule {
     }
 
     private String getContent(String code, Map<String, String> paramMaps) {
-            String content = messageSource.getMessage(code, null, null);
+            String content = messageSource.getMessage(code, null, Locale.ENGLISH);
             for (String key : paramMaps.keySet()) {
                 content = content.replace(getParamKey(key),paramMaps.get(key));
             }
