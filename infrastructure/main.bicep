@@ -180,12 +180,27 @@ resource dbPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   }
 }
 
-resource redisConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource redisHostSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
-  name: 'redis-connection-string'
+  name: 'redis-host'
   properties: {
-    // We dynamically build the connection string using the listKeys() function
-    value: '${managedRedis.properties.hostName}:10000,password=${redisDatabase.listKeys().primaryKey},ssl=True,abortConnect=False'
+    value: '${managedRedis.properties.hostName}'
+  }
+}
+
+resource redisPortSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'redis-port'
+  properties: {
+    value: '10000'
+  }
+}
+
+resource redisPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'redis-password'
+  properties: {
+    value: '${redisDatabase.listKeys().primaryKey}'
   }
 }
 

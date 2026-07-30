@@ -67,15 +67,18 @@ valkey:
         permissions: "~* &* +@all"
         passwordKey: "REDIS_PASSWORD"
 
+azurekv:
+  enabled: false
+
 
 appConfig:
   SPRING_LIQUIBASE_ENABLED: "false"
-  SPRING_REDIS_HOST: "okrs-test-valkey"
   FILE_STORAGE_PATH: "/app/uploads"
 appSecret:
   # ==========================================
   # REDIS
   # ==========================================
+  SPRING_REDIS_HOST: "okrs-test-valkey"
   REDIS_PORT: ""
   REDIS_PASSWORD: ""
 

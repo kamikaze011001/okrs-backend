@@ -23,7 +23,7 @@ spec:
               value: "-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.env.springProfile | quote }}
-            {{- if .Values.azurekv.enabled }}
+            {{- if not .Values.postgres.enabled }}
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 secretKeyRef:
