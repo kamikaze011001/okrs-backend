@@ -1,3 +1,4 @@
+{{- if .Values.postgres.enabled }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -11,3 +12,4 @@ spec:
     initdb:
       database: "okrs_db"
       owner: "okrs_user"
+{{- end }}
