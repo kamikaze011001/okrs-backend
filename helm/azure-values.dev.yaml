@@ -67,6 +67,9 @@ valkey:
         permissions: "~* &* +@all"
         passwordKey: "REDIS_PASSWORD"
 
+azurekv:
+  enabled: true
+
 
 appConfig:
   SPRING_LIQUIBASE_ENABLED: "false"
