@@ -1,5 +1,5 @@
 ## Instances
-replicaCount: 1
+replicaCount: 2
 
 # Image
 image:
@@ -9,7 +9,7 @@ image:
 
 # Environment variables
 env:
-  springProfile: "default"
+  springProfile: "qa"
 
 # Networking
 service:
@@ -18,7 +18,7 @@ service:
 
 # External Routing
 ingress:
-  enabled: false
+  enabled: true
   className: "nginx"
   hosts:
     - host: api.okrs-project.com
@@ -55,10 +55,10 @@ persistence:
   accessMode: ReadWriteOnce
 
 postgres:
-  enabled: true
+  enabled: false
 
 valkey:
-  enabled: true
+  enabled: false
   auth:
     enabled: true
     usersExistingSecret: "okrs-backend-credentials"
@@ -72,24 +72,3 @@ appConfig:
   SPRING_LIQUIBASE_ENABLED: "false"
   SPRING_REDIS_HOST: "okrs-test-valkey"
   FILE_STORAGE_PATH: "/app/uploads"
-appSecret:
-  # ==========================================
-  # REDIS
-  # ==========================================
-  REDIS_PORT: ""
-  REDIS_PASSWORD: ""
-
-  # ==========================================
-  # JWT AUTHENTICATION
-  # ==========================================
-  JWT_ACCESS_TOKEN_SECRET: ""
-  JWT_ACCESS_TOKEN_LIFETIME: ""
-  JWT_REFRESH_TOKEN_SECRET: ""
-  JWT_REFRESH_TOKEN_LIFETIME: ""
-
-  # ==========================================
-  # EMAIL (SMTP)
-  # ==========================================
-  SPRING_EMAIL_FROM: ""
-  SPRING_EMAIL_USERNAME: ""
-  SPRING_EMAIL_PASSWORD: ""
