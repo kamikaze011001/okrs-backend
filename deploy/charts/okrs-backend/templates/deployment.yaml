@@ -11,6 +11,8 @@ spec:
       {{- include "okrs-backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         {{- include "okrs-backend.selectorLabels" . | nindent 8 }}
     spec:
@@ -19,32 +21,15 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: JAVA_TOOLS_OPTIONS
+            - name: JAVA_TOOL_OPTIONS
               value: "-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.env.springProfile | quote }}
-            {{- if not .Values.postgres.enabled }}
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: jdbc-uri
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: username
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: password
-            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "okrs-backend.fullname" . }}-config
             - secretRef:
-                name: okrs-backend-credentials
+                name: {{ .Values.secrets.existingSecret }}
           ports:
             - name: http
               containerPort: 8080

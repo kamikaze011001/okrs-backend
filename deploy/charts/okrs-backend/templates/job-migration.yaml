@@ -1,14 +1,14 @@
+{{- $migrationHash := printf "%s:%s:%s" .Values.image.repository .Values.image.tag (toJson .Values.appConfig) | sha256sum | trunc 10 -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "okrs-backend.fullname" . }}-db-migrate
+  name: {{ include "okrs-backend.fullname" . }}-db-migrate-{{ $migrationHash }}
   labels:
     {{- include "okrs-backend.labels" . | nindent 4 }}
-  annotations:
-    "helm.sh/hook": post-install,pre-upgrade
-    "helm.sh/hook-weight": "1"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
+  activeDeadlineSeconds: 600
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
@@ -51,7 +51,7 @@ spec:
             - configMapRef:
                 name: {{ include "okrs-backend.fullname" . }}-config
             - secretRef:
-                name: okrs-backend-credentials
+                name: {{ .Values.secrets.existingSecret }}
           env:
             - name: SPRING_MAIN_WEB_APPLICATION_TYPE
               value: "none"
@@ -59,18 +59,3 @@ spec:
               value: "true"
             - name: FILE_STORAGE_PATH
               value: "/tmp/dummy-uploads"
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: jdbc-uri
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: username
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "okrs-backend.fullname" . }}-pg-app
-                  key: password

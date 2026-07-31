@@ -3,9 +3,14 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "okrs-backend.fullname" . }}-uploads
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     {{- include "okrs-backend.labels" . | nindent 4 }}
 spec:
+  {{- with .Values.persistence.storageClass }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}
   resources:

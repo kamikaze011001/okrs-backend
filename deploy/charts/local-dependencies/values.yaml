@@ -1,0 +1,39 @@
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 15-alpine
+    pullPolicy: IfNotPresent
+  database: okrs_db
+  existingSecret: okrs-backend-credentials
+  usernameKey: POSTGRES_USER
+  passwordKey: POSTGRES_PASSWORD
+  service:
+    name: okrs-postgres
+    port: 5432
+  persistence:
+    size: 1Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+valkey:
+  enabled: true
+  fullnameOverride: okrs-valkey
+  auth:
+    enabled: true
+    usersExistingSecret: okrs-backend-credentials
+    aclUsers:
+      default:
+        permissions: "~* &* +@all"
+        passwordKey: REDIS_PASSWORD
+  dataStorage:
+    enabled: true
+    requestedSize: 1Gi
+    accessModes:
+      - ReadWriteOnce

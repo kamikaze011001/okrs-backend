@@ -1,67 +1,103 @@
-# ==============================================================================
-# Minikube Local Deployment Makefile
-# ==============================================================================
+SHELL := /bin/bash
 
-.PHONY: build env db app deploy status logs url clean restart
+NAMESPACE ?= okrs-local
+BACKEND_RELEASE ?= okrs-backend
+BACKEND_RESOURCE_NAME ?= $(BACKEND_RELEASE)-okrs-backend
+DEPENDENCIES_RELEASE ?= okrs-dependencies
+BACKEND_CHART := deploy/charts/okrs-backend
+DEPENDENCIES_CHART := deploy/charts/local-dependencies
+LOCAL_VALUES := $(BACKEND_CHART)/values/local.yaml
+LOCAL_ENV := local/.env
+IMAGE := okrs-app
+IMAGE_TAG := latest
 
-# 1. Build the Docker image inside Minikube's Docker engine
+.PHONY: \
+	build namespace secret dependencies app deploy \
+	status logs port-forward rollback restart clean
+
 build:
-	@echo "🚀 Building okrs-app:latest inside Minikube..."
-	@eval $$(minikube docker-env) && docker build -t okrs-app:latest .
+	@echo "Building $(IMAGE):$(IMAGE_TAG) in Minikube..."
+	minikube image build -t $(IMAGE):$(IMAGE_TAG) .
 
-# 2. Apply ConfigMap, Secret, and Storage
-env:
-	@echo "🔐 Applying ConfigMap, Secret, and PVC..."
-	kubectl apply -f k8s/environments/local-minikube/app-config.yaml
-	kubectl apply -f k8s/environments/local-minikube/app-secret.yaml
-	kubectl apply -f k8s/base/application/app-pvc.yaml
+namespace:
+	@echo "Ensuring namespace $(NAMESPACE) exists..."
+	kubectl create namespace $(NAMESPACE) \
+		--dry-run=client \
+		--output yaml | kubectl apply -f -
 
-# 3. Apply Postgres and Redis
-db:
-	@echo "🗄️ Starting Databases..."
-	kubectl apply -f k8s/base/infrastructure/postgres/postgres-statefulset.yaml
-	kubectl apply -f k8s/base/infrastructure/redis/redis-statefulset.yaml
+secret: namespace
+	@test -f $(LOCAL_ENV) || \
+		(echo "Missing $(LOCAL_ENV). Create it before deploying."; exit 1)
+	@echo "Creating/updating local application Secret..."
+	kubectl -n $(NAMESPACE) create secret generic okrs-backend-credentials \
+		--from-env-file=$(LOCAL_ENV) \
+		--dry-run=client \
+		--output yaml | kubectl apply -f -
 
-# 4. Apply Spring Boot Application
-app:
-	@echo "⚙️ Starting Spring Boot Application..."
-	kubectl apply -f k8s/base/application/app-deployment.yaml
-	kubectl apply -f k8s/base/application/app-service.yaml
+dependencies: secret
+	@echo "Ensuring the Valkey Helm repository is configured..."
+	helm repo add valkey https://valkey.io/valkey-helm/ --force-update
+	helm repo update valkey
+	@echo "Building local chart dependencies..."
+	helm dependency build $(DEPENDENCIES_CHART)
+	@echo "Installing/upgrading local PostgreSQL and Valkey..."
+	helm upgrade --install $(DEPENDENCIES_RELEASE) \
+		$(DEPENDENCIES_CHART) \
+		--namespace $(NAMESPACE) \
+		--wait \
+		--wait-for-jobs \
+		--timeout 5m
 
-# 5. The Master Command: Build and deploy everything in the correct order
-deploy: build env db app
-	@echo "✅ Deployment complete! Run 'make status' to check pods."
+app: secret
+	@echo "Installing/upgrading the OKRs backend..."
+	helm upgrade --install $(BACKEND_RELEASE) \
+		$(BACKEND_CHART) \
+		--namespace $(NAMESPACE) \
+		--values $(LOCAL_VALUES) \
+		--wait \
+		--wait-for-jobs \
+		--timeout 10m
 
-# ==============================================================================
-# Utility Commands
-# ==============================================================================
+deploy:
+	$(MAKE) build
+	$(MAKE) dependencies
+	$(MAKE) app
+	@echo "Deployment complete. Run 'make status' to inspect it."
 
-# Check the status of all your resources
 status:
-	kubectl get pods,svc,pvc
+	kubectl -n $(NAMESPACE) get pods,services,persistentvolumeclaims,jobs
+	helm -n $(NAMESPACE) list
 
-# Stream the live logs of your Spring Boot application
 logs:
-	@echo "📜 Tailing logs for okrs-app..."
-	kubectl logs -l app=okrs-app -f
+	kubectl -n $(NAMESPACE) logs \
+		--selector app.kubernetes.io/name=okrs-backend \
+		--all-containers=true \
+		--follow \
+		--max-log-requests=10
 
-# Get the local WSL 2 URL to test in Windows Chrome
 port-forward:
-	@echo "🌐 Forwarding okrs-app port..."
-	kubectl port-forward service/okrs-app-service 8080:8080 --address 0.0.0.0
+	kubectl -n $(NAMESPACE) port-forward \
+		service/$(BACKEND_RESOURCE_NAME) 8080:8080 \
+		--address 0.0.0.0
 
-# Delete everything from the cluster
-clean:
-	@echo "🧹 Cleaning up Kubernetes resources..."
-	kubectl delete -f k8s/base/application/app-deployment.yaml --ignore-not-found
-	kubectl delete -f k8s/base/application/app-service.yaml --ignore-not-found
-	kubectl delete -f k8s/base/infrastructure/postgres/postgres-statefulset.yaml --ignore-not-found
-	kubectl delete -f k8s/base/infrastructure/redis/redis-statefulset.yaml --ignore-not-found
-	kubectl delete -f k8s/environments/local-minikube/app-config.yaml --ignore-not-found
-	kubectl delete -f k8s/environments/local-minikube/app-secret.yaml --ignore-not-found
-	kubectl delete -f k8s/base/application/app-pvc.yaml --ignore-not-found
+rollback:
+	helm rollback $(BACKEND_RELEASE) 0 \
+		--namespace $(NAMESPACE) \
+		--wait \
+		--timeout 10m
 
-# Rebuild the code and restart the Spring Boot pod without touching the databases
 restart: build
-	@echo "🔄 Restarting Spring Boot pod with new image..."
-	kubectl rollout restart deployment/okrs-app-deployment
+	kubectl -n $(NAMESPACE) rollout restart \
+		deployment/$(BACKEND_RESOURCE_NAME)
+	kubectl -n $(NAMESPACE) rollout status \
+		deployment/$(BACKEND_RESOURCE_NAME) \
+		--timeout=10m
+
+clean:
+	helm uninstall $(BACKEND_RELEASE) \
+		--namespace $(NAMESPACE) \
+		--ignore-not-found
+	helm uninstall $(DEPENDENCIES_RELEASE) \
+		--namespace $(NAMESPACE) \
+		--ignore-not-found
+	@echo "Releases removed. PersistentVolumeClaims and namespace were preserved."

@@ -1,0 +1,26 @@
+image:
+  repository: okrs-app
+  tag: "latest"
+  pullPolicy: Never
+
+env:
+  springProfile: default
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: false
+
+externalSecret:
+  enabled: false
+
+appConfig:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://okrs-postgres:5432/okrs_db
+  SPRING_REDIS_HOST: okrs-valkey
+  REDIS_PORT: "6379"
+  SPRING_LIQUIBASE_ENABLED: "false"
+  FILE_STORAGE_PATH: /app/uploads
+  JWT_ACCESS_TOKEN_LIFETIME: "900000"
+  JWT_REFRESH_TOKEN_LIFETIME: "604800000"
+  SPRING_EMAIL_FROM: no-reply@localhost
