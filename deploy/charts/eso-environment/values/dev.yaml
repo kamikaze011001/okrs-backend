@@ -1,0 +1,10 @@
+serviceAccount:
+  name: okrs-secrets-reader
+
+workloadIdentity:
+  clientId: 1723ba78-ed11-46c7-8cfd-ddcf824b015d
+  tenantId: f776e96a-9b62-4361-8ed4-89004810cb3a
+
+secretStore:
+  name: azure-key-vault
+  vaultUrl: https://kv-okrs-dev-hk-ydycrv67h.vault.azure.net/

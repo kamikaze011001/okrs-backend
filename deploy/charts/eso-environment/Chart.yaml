@@ -1,0 +1,6 @@
+apiVersion: v2
+name: eso-environment
+description: Namespace-scoped Azure Key Vault access through External Secrets Operator
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

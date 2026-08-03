@@ -32,3 +32,10 @@ externalSecret:
     JWT_REFRESH_TOKEN_SECRET: jwt-refresh-token-secret
     SPRING_EMAIL_USERNAME: spring-email-username
     SPRING_EMAIL_PASSWORD: spring-email-password
+    SPRING_EMAIL_FROM: spring-email-username
+
+appConfig:
+  SPRING_LIQUIBASE_ENABLED: "false"
+  FILE_STORAGE_PATH: /app/uploads
+  JWT_ACCESS_TOKEN_LIFETIME: "900000"
+  JWT_REFRESH_TOKEN_LIFETIME: "604800000"
