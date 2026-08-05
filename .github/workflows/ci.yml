@@ -1,4 +1,4 @@
-name: CI Build and Push
+name: Build, Push, and Deploy Dev
 
 on:
   push:
@@ -10,54 +10,68 @@ on:
       - 'core/**'
       - 'pom.xml'
       - 'Dockerfile'
-      - '!helm/**'
-      - '!k8s/**'
-      - '!infrastructure/**'
-      - '!README.md'
+  workflow_dispatch:
+
+concurrency:
+  group: dev-image-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
 
 env:
-  IMAGE_REPOSITORY: 'okrs-app'
-  REGISTRY_SERVER: 'acrokrsdevydycrv67hdqyc.azurecr.io'
-  DOCKERFILE_PATH: 'Dockerfile'
+  IMAGE_REPOSITORY: okrs-app
+  REGISTRY_NAME: acrokrsdevydycrv67hdqyc
+  REGISTRY_SERVER: acrokrsdevydycrv67hdqyc.azurecr.io
+  DEV_VALUES_FILE: deploy/charts/okrs-backend/values/dev.yaml
 
 jobs:
-  build-and-push:
+  build-push-pin:
     runs-on: ubuntu-latest
     environment: development
     steps:
-      # 1. Checkout repository code
-      - name: Checkout Code
+      - name: Check out source revision
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # 2. Set up Java JDK 11 matching the Maven configuration
       - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '11'
-          cache: 'maven'
+          cache: maven
 
-      # 3. Compile and Package Spring Boot code using Maven
-      - name: Maven Clean and Package
-        run: mvn clean package -DskipTests -B
+      - name: Verify application
+        run: mvn --batch-mode clean verify
 
-      # 4. Log in to Azure Container Registry (ACR)
-      - name: Log in to ACR
-        uses: azure/docker-login@v1
+      - name: Log in to Azure with GitHub OIDC
+        uses: azure/login@v2
         with:
-          login-server: ${{ env.REGISTRY_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      # 5. Build and Push Docker Image using Commit Hash Tag
-      - name: Docker Build and Push
+      - name: Build and push immutable image
         run: |
-          TAG=${{ github.sha }}
-          REGISTRY=${{ env.REGISTRY_SERVER }}
-          REPO=${{ env.IMAGE_REPOSITORY }}
-          
-          echo "Building Docker image..."
-          docker build -t $REGISTRY/$REPO:$TAG -f ${{ env.DOCKERFILE_PATH }} .
-          
-          echo "Pushing Docker image to ACR..."
-          docker push $REGISTRY/$REPO:$TAG
+          set -Eeuo pipefail
+          az acr login --name "$REGISTRY_NAME"
+          image="$REGISTRY_SERVER/$IMAGE_REPOSITORY:$GITHUB_SHA"
+          docker build --file Dockerfile --tag "$image" .
+          docker push "$image"
+
+      - name: Pin dev desired state
+        run: |
+          set -Eeuo pipefail
+          sed -i -E "s/^  tag: .*/  tag: ${GITHUB_SHA}/" "$DEV_VALUES_FILE"
+          if git diff --quiet -- "$DEV_VALUES_FILE"; then
+            echo "Dev already points to $GITHUB_SHA."
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add "$DEV_VALUES_FILE"
+          git commit -m "deploy(dev): pin okrs-backend ${GITHUB_SHA} [skip ci]"
+          git pull --rebase origin develop
+          git push origin HEAD:develop

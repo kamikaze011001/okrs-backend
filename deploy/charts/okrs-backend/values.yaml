@@ -47,13 +47,9 @@ persistence:
 secrets:
   existingSecret: okrs-backend-credentials
 
-externalSecret:
-  enabled: false
-  refreshInterval: 1h
-  secretStoreRef:
-    name: azure-key-vault
-    kind: SecretStore
-  data: {}
+migration:
+  enabled: true
+  argocdHook: false
 
 appConfig:
   SPRING_LIQUIBASE_ENABLED: "false"

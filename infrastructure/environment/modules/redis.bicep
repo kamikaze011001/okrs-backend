@@ -12,6 +12,9 @@ param skuName string = 'Balanced_B5'
 @description('Redis database port.')
 param port int = 10000
 
+@description('Environment Key Vault that receives the current Redis access key.')
+param keyVaultName string
+
 @description('Tags applied to Redis resources.')
 param tags object = {}
 
@@ -43,6 +46,18 @@ resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2025-04-01' = 
       aofEnabled: false
       rdbEnabled: false
     }
+  }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
+}
+
+resource redisPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'redis-password'
+  properties: {
+    value: redisDatabase.listKeys().primaryKey
   }
 }
 

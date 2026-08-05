@@ -1,0 +1,90 @@
+name: Promote Existing Image to QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_sha:
+        description: Full 40-character commit SHA already present in ACR
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+env:
+  IMAGE_REPOSITORY: okrs-app
+  REGISTRY_NAME: acrokrsdevydycrv67hdqyc
+  QA_VALUES_FILE: deploy/charts/okrs-backend/values/qa.yaml
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Check out develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Refuse promotion until QA is enabled
+        run: |
+          test -f deploy/environments/qa.enabled || {
+            echo "QA is prepared but intentionally not provisioned. Add deploy/environments/qa.enabled when its infrastructure and Argo child apps are active."
+            exit 1
+          }
+
+      - name: Validate image SHA
+        env:
+          IMAGE_SHA: ${{ inputs.image_sha }}
+        run: |
+          [[ "$IMAGE_SHA" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "image_sha must be a full lowercase 40-character commit SHA."
+            exit 1
+          }
+
+      - name: Log in to Azure with GitHub OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify immutable image exists
+        env:
+          IMAGE_SHA: ${{ inputs.image_sha }}
+        run: |
+          az acr repository show \
+            --name "$REGISTRY_NAME" \
+            --image "$IMAGE_REPOSITORY:$IMAGE_SHA" \
+            --output none
+
+      - name: Create promotion pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE_SHA: ${{ inputs.image_sha }}
+        run: |
+          set -Eeuo pipefail
+          branch="promote/qa-${IMAGE_SHA:0:12}"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git switch -c "$branch"
+          sed -i -E "s/^  tag: .*/  tag: ${IMAGE_SHA}/" "$QA_VALUES_FILE"
+          if git diff --quiet -- "$QA_VALUES_FILE"; then
+            echo "QA already points to $IMAGE_SHA."
+            exit 0
+          fi
+          git add "$QA_VALUES_FILE"
+          git commit -m "deploy(qa): promote okrs-backend ${IMAGE_SHA}"
+          git push --force-with-lease origin "$branch"
+          existing_pr="$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Updated existing promotion PR: $existing_pr"
+          else
+            gh pr create \
+              --base develop \
+              --head "$branch" \
+              --title "deploy(qa): promote okrs-backend ${IMAGE_SHA:0:12}" \
+              --body "Promotes the already-built immutable image \`${IMAGE_SHA}\` to QA."
+          fi

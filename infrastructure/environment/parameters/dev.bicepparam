@@ -9,10 +9,11 @@ param kubernetesNamespace = 'okrs-dev'
 param aksResourceGroupName = 'rg-okrs-dev-hk'
 param aksName = 'aks-okrs-dev-hk'
 
-param createKeyVault = false
+// These declarations adopt and then manage the existing named resources.
+param createKeyVault = true
 param keyVaultName = 'kv-okrs-dev-hk-ydycrv67h'
 
-param createDataServices = false
+param createDataServices = true
 param postgresServerName = 'psql-okrs-dev-hk-ydycrv67hdqyc'
 param postgresAdministratorLogin = 'okrsadmin'
 param postgresDatabaseName = 'okrs_db'

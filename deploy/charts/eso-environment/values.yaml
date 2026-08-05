@@ -8,3 +8,5 @@ workloadIdentity:
 secretStore:
   name: azure-key-vault
   vaultUrl: ""
+
+externalSecrets: {}

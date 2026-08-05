@@ -5,6 +5,7 @@ metadata:
   name: {{ include "okrs-backend.fullname" . }}-uploads
   annotations:
     helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Delete=false,Prune=false
   labels:
     {{- include "okrs-backend.labels" . | nindent 4 }}
 spec:

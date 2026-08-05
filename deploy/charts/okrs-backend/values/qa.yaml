@@ -15,24 +15,9 @@ persistence:
 secrets:
   existingSecret: okrs-backend-credentials
 
-externalSecret:
+migration:
   enabled: true
-  refreshInterval: 1h
-  secretStoreRef:
-    name: azure-key-vault
-    kind: SecretStore
-  data:
-    SPRING_DATASOURCE_URL: spring-datasource-url
-    POSTGRES_USER: postgres-user
-    POSTGRES_PASSWORD: postgres-password
-    SPRING_REDIS_HOST: redis-host
-    REDIS_PORT: redis-port
-    REDIS_PASSWORD: redis-password
-    JWT_ACCESS_TOKEN_SECRET: jwt-access-token-secret
-    JWT_REFRESH_TOKEN_SECRET: jwt-refresh-token-secret
-    SPRING_EMAIL_USERNAME: spring-email-username
-    SPRING_EMAIL_PASSWORD: spring-email-password
-    SPRING_EMAIL_FROM: spring-email-username
+  argocdHook: true
 
 appConfig:
   SPRING_LIQUIBASE_ENABLED: "false"

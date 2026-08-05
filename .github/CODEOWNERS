@@ -1,0 +1,8 @@
+# App-of-Apps and infrastructure changes carry cluster-admin-level impact.
+/deploy/argocd/ @kamikaze011001
+/infrastructure/ @kamikaze011001
+/.github/workflows/ @kamikaze011001
+/up.sh @kamikaze011001
+/down.sh @kamikaze011001
+/resume.sh @kamikaze011001
+/nuke.sh @kamikaze011001

@@ -21,13 +21,13 @@ param aksResourceGroupName string
 @description('Shared AKS cluster name.')
 param aksName string
 
-@description('Create a new Key Vault; false references an existing vault.')
+@description('Manage the Key Vault declaratively; false only references an existing vault.')
 param createKeyVault bool = true
 
 @description('Explicit Key Vault name. Leave empty to generate one.')
 param keyVaultName string = ''
 
-@description('Create PostgreSQL and Redis; false references existing resources.')
+@description('Manage PostgreSQL and Redis declaratively; false only references existing resources.')
 param createDataServices bool = true
 
 @description('Explicit PostgreSQL server name. Leave empty to generate one.')
@@ -133,8 +133,12 @@ module newRedis './modules/redis.bicep' = if (createDataServices) {
     location: location
     skuName: redisSkuName
     port: redisPort
+    keyVaultName: resolvedKeyVaultName
     tags: commonTags
   }
+  dependsOn: [
+    newKeyVault
+  ]
 }
 
 resource existingPostgres 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' existing = if (!createDataServices) {
@@ -173,6 +177,7 @@ module newServiceMetadata './modules/service-metadata.bicep' = if (createDataSer
     postgresDatabaseName: postgresDatabaseName
     redisHostName: newRedis!.outputs.hostName
     redisPort: redisPort
+    postgresPassword: postgresAdministratorPassword
   }
   dependsOn: [
     newKeyVault

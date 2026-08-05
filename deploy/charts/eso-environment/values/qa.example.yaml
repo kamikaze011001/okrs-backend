@@ -1,13 +1,14 @@
+# Copy to values/qa.yaml only after QA Azure resources have been provisioned.
 serviceAccount:
   name: okrs-secrets-reader
 
 workloadIdentity:
-  clientId: 1723ba78-ed11-46c7-8cfd-ddcf824b015d
-  tenantId: f776e96a-9b62-4361-8ed4-89004810cb3a
+  clientId: REPLACE_WITH_QA_WORKLOAD_IDENTITY_CLIENT_ID
+  tenantId: REPLACE_WITH_TENANT_ID
 
 secretStore:
   name: azure-key-vault
-  vaultUrl: https://kv-okrs-dev-hk-ydycrv67h.vault.azure.net/
+  vaultUrl: https://REPLACE_WITH_QA_VAULT.vault.azure.net/
 
 externalSecrets:
   okrs-backend:

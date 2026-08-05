@@ -1,0 +1,73 @@
+global:
+  domain: ""
+
+server:
+  service:
+    type: ClusterIP
+
+configs:
+  params:
+    server.insecure: false
+  cm:
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      if obj.status ~= nil and obj.status.health ~= nil then
+        hs.status = obj.status.health.status
+        hs.message = obj.status.health.message or ""
+        return hs
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for child Application health"
+      return hs
+    resource.customizations.health.external-secrets.io_ExternalSecret: |
+      hs = {}
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            if condition.status == "True" then
+              hs.status = "Healthy"
+            elseif condition.status == "False" then
+              hs.status = "Degraded"
+            else
+              hs.status = "Progressing"
+            end
+            hs.message = condition.message or condition.reason or ""
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for ExternalSecret Ready condition"
+      return hs
+    resource.customizations.health.external-secrets.io_SecretStore: |
+      hs = {}
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            if condition.status == "True" then
+              hs.status = "Healthy"
+            elseif condition.status == "False" then
+              hs.status = "Degraded"
+            else
+              hs.status = "Progressing"
+            end
+            hs.message = condition.message or condition.reason or ""
+            return hs
+          end
+        end
+      end
+      hs.status = "Progressing"
+      hs.message = "Waiting for SecretStore Ready condition"
+      return hs
+
+redis-ha:
+  enabled: false
+
+controller:
+  replicas: 1
+
+repoServer:
+  replicas: 1
+
+applicationSet:
+  replicas: 1

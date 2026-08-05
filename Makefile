@@ -13,7 +13,8 @@ IMAGE_TAG := latest
 
 .PHONY: \
 	build namespace secret dependencies app deploy \
-	status logs port-forward rollback restart clean
+	status logs port-forward rollback restart clean \
+	validate-deploy argocd-status argocd-port-forward
 
 build:
 	@echo "Building $(IMAGE):$(IMAGE_TAG) in Minikube..."
@@ -101,3 +102,12 @@ clean:
 		--namespace $(NAMESPACE) \
 		--ignore-not-found
 	@echo "Releases removed. PersistentVolumeClaims and namespace were preserved."
+
+validate-deploy:
+	./scripts/validate-deploy.sh
+
+argocd-status:
+	kubectl -n argocd get applications.argoproj.io
+
+argocd-port-forward:
+	kubectl -n argocd port-forward service/argocd-server 8081:443

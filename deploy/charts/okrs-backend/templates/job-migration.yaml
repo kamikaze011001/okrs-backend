@@ -1,8 +1,16 @@
+{{- if .Values.migration.enabled -}}
 {{- $migrationHash := printf "%s:%s:%s" .Values.image.repository .Values.image.tag (toJson .Values.appConfig) | sha256sum | trunc 10 -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
+  {{- if .Values.migration.argocdHook }}
+  name: {{ include "okrs-backend.fullname" . }}-db-migrate
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+  {{- else }}
   name: {{ include "okrs-backend.fullname" . }}-db-migrate-{{ $migrationHash }}
+  {{- end }}
   labels:
     {{- include "okrs-backend.labels" . | nindent 4 }}
 spec:
@@ -29,16 +37,14 @@ spec:
               TAIL_PID=$!
               while true; do
                 if grep -q "Started OkrsApiApplication" /tmp/app.log; then
-                  echo "==================================================="
-                  echo "✅ LIQUIBASE FINISHED SUCCESSFULLY! KILLING JVM..."
-                  echo "==================================================="
+                  echo "Liquibase completed successfully; stopping the migration JVM."
                   kill $JAVA_PID
                   kill $TAIL_PID
                   exit 0
                 fi
 
                 if ! kill -0 $JAVA_PID 2>/dev/null; then
-                  echo "❌ JAVA PROCESS CRASHED!"
+                  echo "Migration JVM exited before application startup completed."
                   wait $JAVA_PID
                   EXIT_CODE=$?
                   kill $TAIL_PID
@@ -59,3 +65,4 @@ spec:
               value: "true"
             - name: FILE_STORAGE_PATH
               value: "/tmp/dummy-uploads"
+{{- end }}

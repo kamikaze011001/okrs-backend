@@ -12,9 +12,6 @@ service:
 ingress:
   enabled: false
 
-externalSecret:
-  enabled: false
-
 appConfig:
   SPRING_DATASOURCE_URL: jdbc:postgresql://okrs-postgres:5432/okrs_db
   SPRING_REDIS_HOST: okrs-valkey

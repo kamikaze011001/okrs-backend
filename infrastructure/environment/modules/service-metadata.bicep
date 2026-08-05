@@ -18,6 +18,10 @@ param redisHostName string
 @description('Redis TLS port.')
 param redisPort int = 10000
 
+@secure()
+@description('PostgreSQL password to persist for a managed data-service deployment. Empty preserves an existing secret.')
+param postgresPassword string = ''
+
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
@@ -54,9 +58,10 @@ resource redisPortSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   }
 }
 
-output managedSecretNames array = [
-  postgresUser.name
-  postgresUrl.name
-  redisHost.name
-  redisPortSecret.name
-]
+resource postgresPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = if (!empty(postgresPassword)) {
+  parent: keyVault
+  name: 'postgres-password'
+  properties: {
+    value: postgresPassword
+  }
+}

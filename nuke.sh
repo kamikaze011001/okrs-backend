@@ -1,25 +1,35 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-# ==========================================
-# VARIABLES (Must match up.sh)
-# ==========================================
-PROJECT_NAME="okrs"
-ENV="dev-hk"
-RESOURCE_GROUP="rg-${PROJECT_NAME}-${ENV}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/common.sh
+source "$SCRIPT_DIR/scripts/lib/common.sh"
 
-echo "WARNING: This will permanently delete the Resource Group '$RESOURCE_GROUP' and ALL resources inside it."
-read -p "Are you absolutely sure you want to proceed? (y/N): " confirm
+parse_lifecycle_args "$@"
+load_environment "$ENVIRONMENT"
+require_commands az
+require_azure_login
 
-if [[ "$confirm" == [yY] || "$confirm" == [yY][eE][sS] ]]; then
-  echo "Nuking Resource Group: $RESOURCE_GROUP..."
-  # The --no-wait flag tells the CLI to send the delete command and return control to you immediately,
-  # rather than forcing you to watch the terminal for 10 minutes while it deletes.
-  az group delete \
-    --name $RESOURCE_GROUP \
-    --yes \
-    --no-wait
-
-  echo "Nuke command sent! The resources are being deleted in the background."
-else
-  echo "Nuke aborted. Your resources are safe."
+if [[ "$ENVIRONMENT" == "dev" && "$SCOPE" != "all" ]]; then
+  die "Legacy dev platform and environment resources share $PLATFORM_RESOURCE_GROUP. Use 'nuke.sh all --env dev'; partial deletion is intentionally refused."
 fi
+
+if [[ "$SCOPE" == "platform" ]]; then
+  die "Platform deletion is refused while environment deployments may depend on it. Select 'all' explicitly."
+fi
+
+target_group="$ENVIRONMENT_RESOURCE_GROUP"
+if [[ "$SCOPE" == "all" ]]; then
+  target_group="$PLATFORM_RESOURCE_GROUP"
+fi
+
+confirmation="delete ${target_group}"
+if [[ "$ASSUME_YES" != "true" ]]; then
+  printf "This permanently deletes resource group '%s'.\nType '%s' to continue: " "$target_group" "$confirmation"
+  read -r response
+  [[ "$response" == "$confirmation" ]] || die "Nuke aborted."
+fi
+
+log "Submitting deletion for $target_group..."
+az group delete --name "$target_group" --yes --no-wait
+log "Deletion request accepted. Azure performs it asynchronously."
