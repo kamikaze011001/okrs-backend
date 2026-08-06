@@ -99,7 +99,7 @@ module newKeyVault './modules/key-vault.bicep' = if (createKeyVault) {
     keyVaultName: resolvedKeyVaultName
     location: location
     tenantId: subscription().tenantId
-    enablePurgeProtection: false
+    enablePurgeProtection: true
     publicNetworkAccess: 'Enabled'
     keyVaultDataAdminPrincipalId: keyVaultDataAdminPrincipalId
     tags: commonTags

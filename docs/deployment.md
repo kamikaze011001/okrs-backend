@@ -93,6 +93,8 @@ Dev environment-only destruction is refused because platform and dev resources s
 ./nuke.sh all --env dev
 ```
 
+Key Vault purge protection is enabled by design and cannot be disabled. After a nuke, Azure retains the deleted vault and its name cannot be reused until the retention period expires; use a new Key Vault name or recover the vault for a subsequent environment.
+
 ## Validation
 
 ```bash

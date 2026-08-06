@@ -29,4 +29,10 @@ if ! jq -e '.parameters.startDate | has("defaultValue") | not' >/dev/null <<<"$b
   exit 1
 fi
 
+key_vault_template="$(az bicep build --file infrastructure/environment/modules/key-vault.bicep --stdout)"
+if ! jq -e '.parameters.enablePurgeProtection.defaultValue == true' >/dev/null <<<"$key_vault_template"; then
+  printf '[idempotency] Key Vault purge protection must not be disabled.\n' >&2
+  exit 1
+fi
+
 printf '[idempotency] Infrastructure redeployment invariants passed.\n'

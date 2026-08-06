@@ -9,8 +9,8 @@ param location string = resourceGroup().location
 @description('Microsoft Entra tenant ID.')
 param tenantId string = subscription().tenantId
 
-@description('Enable purge protection for environments that require it.')
-param enablePurgeProtection bool = false
+@description('Enable purge protection. Azure does not allow this setting to be disabled after creation.')
+param enablePurgeProtection bool = true
 
 @allowed([
   'Enabled'
