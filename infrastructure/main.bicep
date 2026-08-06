@@ -27,6 +27,9 @@ param aksVmSize string = 'Standard_D4s_v6'
 @description('Monthly resource-group budget.')
 param budgetAmount int = 50
 
+@description('Stable first billing date for the budget. This value is immutable after creation.')
+param budgetStartDate string
+
 @description('Optional budget notification email. Notifications are omitted when empty.')
 param alertEmail string = ''
 
@@ -106,6 +109,7 @@ module budget './platform/modules/budget.bicep' = {
   params: {
     name: 'budget-${projectName}-${platformEnvironmentName}'
     amount: budgetAmount
+    startDate: budgetStartDate
     alertEmail: alertEmail
   }
 }

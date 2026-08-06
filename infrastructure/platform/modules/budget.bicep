@@ -3,7 +3,7 @@ targetScope = 'resourceGroup'
 param name string
 param amount int
 param alertEmail string = ''
-param startDate string = utcNow('yyyy-MM-01T00:00:00Z')
+param startDate string
 
 var notifications = empty(alertEmail) ? {} : {
   Threshold50: {

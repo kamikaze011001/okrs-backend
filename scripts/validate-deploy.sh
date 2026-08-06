@@ -5,11 +5,11 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 printf '[validate] Bash syntax\n'
-bash -n up.sh down.sh resume.sh nuke.sh scripts/bootstrap-argocd.sh scripts/secrets.sh scripts/validate-deploy.sh scripts/lib/common.sh
+bash -n up.sh down.sh resume.sh nuke.sh scripts/bootstrap-argocd.sh scripts/secrets.sh scripts/test-infrastructure-idempotency.sh scripts/validate-deploy.sh scripts/lib/common.sh
 
 if command -v shellcheck >/dev/null 2>&1; then
   printf '[validate] ShellCheck\n'
-  shellcheck up.sh down.sh resume.sh nuke.sh scripts/bootstrap-argocd.sh scripts/secrets.sh scripts/validate-deploy.sh scripts/lib/common.sh
+  shellcheck up.sh down.sh resume.sh nuke.sh scripts/bootstrap-argocd.sh scripts/secrets.sh scripts/test-infrastructure-idempotency.sh scripts/validate-deploy.sh scripts/lib/common.sh
 else
   printf '[validate] ShellCheck not installed; skipping local check.\n'
 fi
@@ -31,6 +31,11 @@ if command -v az >/dev/null 2>&1; then
   az bicep build --file infrastructure/environment/main.bicep --stdout >/dev/null
   az bicep build-params --file infrastructure/platform/parameters/dev.bicepparam --stdout >/dev/null
   az bicep build-params --file infrastructure/environment/parameters/dev.bicepparam --stdout >/dev/null
+  if command -v jq >/dev/null 2>&1; then
+    scripts/test-infrastructure-idempotency.sh
+  else
+    printf '[validate] jq not installed; skipping Bicep idempotency assertions.\n'
+  fi
 else
   printf '[validate] Azure CLI not installed; skipping local Bicep compilation. CI performs it.\n'
 fi

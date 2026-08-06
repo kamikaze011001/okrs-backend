@@ -30,6 +30,9 @@ resource githubFederatedCredential 'Microsoft.ManagedIdentity/userAssignedIdenti
 resource githubEnvironmentFederatedCredential 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2023-01-31' = {
   parent: identity
   name: 'github-${githubRepository}-environment'
+  dependsOn: [
+    githubFederatedCredential
+  ]
   properties: {
     audiences: [
       'api://AzureADTokenExchange'

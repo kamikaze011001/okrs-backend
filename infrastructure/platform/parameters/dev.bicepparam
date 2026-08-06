@@ -19,6 +19,7 @@ param githubEnvironmentName = 'development'
 // Keep true until the OIDC workflow has pushed successfully once; then set false.
 param acrAdminUserEnabled = true
 param budgetAmount = 50
+param budgetStartDate = '2026-07-01T00:00:00Z'
 
 param tags = {
   Lifecycle: 'development'
