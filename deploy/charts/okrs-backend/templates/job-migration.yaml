@@ -1,0 +1,68 @@
+{{- if .Values.migration.enabled -}}
+{{- $migrationHash := printf "%s:%s:%s" .Values.image.repository .Values.image.tag (toJson .Values.appConfig) | sha256sum | trunc 10 -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  {{- if .Values.migration.argocdHook }}
+  name: {{ include "okrs-backend.fullname" . }}-db-migrate
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+  {{- else }}
+  name: {{ include "okrs-backend.fullname" . }}-db-migrate-{{ $migrationHash }}
+  {{- end }}
+  labels:
+    {{- include "okrs-backend.labels" . | nindent 4 }}
+spec:
+  activeDeadlineSeconds: 600
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        {{- include "okrs-backend.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: liquibase
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion}}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Starting Spring Boot Watchdog..."
+              java -jar /app/app.jar > /tmp/app.log 2>&1 &
+              JAVA_PID=$!
+              tail -f /tmp/app.log &
+              TAIL_PID=$!
+              while true; do
+                if grep -q "Started OkrsApiApplication" /tmp/app.log; then
+                  echo "Liquibase completed successfully; stopping the migration JVM."
+                  kill $JAVA_PID
+                  kill $TAIL_PID
+                  exit 0
+                fi
+
+                if ! kill -0 $JAVA_PID 2>/dev/null; then
+                  echo "Migration JVM exited before application startup completed."
+                  wait $JAVA_PID
+                  EXIT_CODE=$?
+                  kill $TAIL_PID
+                  exit $EXIT_CODE
+                fi
+
+                sleep 2
+              done
+          envFrom:
+            - configMapRef:
+                name: {{ include "okrs-backend.fullname" . }}-config
+            - secretRef:
+                name: {{ .Values.secrets.existingSecret }}
+          env:
+            - name: SPRING_MAIN_WEB_APPLICATION_TYPE
+              value: "none"
+            - name: SPRING_LIQUIBASE_ENABLED
+              value: "true"
+            - name: FILE_STORAGE_PATH
+              value: "/tmp/dummy-uploads"
+{{- end }}

@@ -1,0 +1,28 @@
+# Copy to values/qa.yaml only after QA Azure resources have been provisioned.
+serviceAccount:
+  name: okrs-secrets-reader
+
+workloadIdentity:
+  clientId: REPLACE_WITH_QA_WORKLOAD_IDENTITY_CLIENT_ID
+  tenantId: REPLACE_WITH_TENANT_ID
+
+secretStore:
+  name: azure-key-vault
+  vaultUrl: https://REPLACE_WITH_QA_VAULT.vault.azure.net/
+
+externalSecrets:
+  okrs-backend:
+    targetName: okrs-backend-credentials
+    refreshInterval: 1h
+    data:
+      SPRING_DATASOURCE_URL: spring-datasource-url
+      POSTGRES_USER: postgres-user
+      POSTGRES_PASSWORD: postgres-password
+      SPRING_REDIS_HOST: redis-host
+      REDIS_PORT: redis-port
+      REDIS_PASSWORD: redis-password
+      JWT_ACCESS_TOKEN_SECRET: jwt-access-token-secret
+      JWT_REFRESH_TOKEN_SECRET: jwt-refresh-token-secret
+      SPRING_EMAIL_USERNAME: spring-email-username
+      SPRING_EMAIL_PASSWORD: spring-email-password
+      SPRING_EMAIL_FROM: spring-email-username

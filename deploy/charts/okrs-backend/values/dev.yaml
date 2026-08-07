@@ -1,0 +1,26 @@
+image:
+  repository: acrokrsdevydycrv67hdqyc.azurecr.io/okrs-app
+  tag: REPLACE_WITH_IMAGE_SHA
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: false
+  hosts: []
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany
+  storageClass: azurefile-csi
+
+secrets:
+  existingSecret: okrs-backend-credentials
+
+migration:
+  enabled: true
+  argocdHook: true
+
+appConfig:
+  SPRING_LIQUIBASE_ENABLED: "false"
+  FILE_STORAGE_PATH: /app/uploads
+  JWT_ACCESS_TOKEN_LIFETIME: "900000"
+  JWT_REFRESH_TOKEN_LIFETIME: "604800000"

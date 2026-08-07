@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: okrs-dev-environment
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+    argocd.argoproj.io/sync-options: Delete=confirm
+spec:
+  project: okrs-platform
+  source:
+    repoURL: git@github.com:kamikaze011001/okrs-backend.git
+    targetRevision: develop
+    path: deploy/charts/eso-environment
+    helm:
+      releaseName: okrs-dev-environment
+      valueFiles:
+        - values/dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: okrs-dev
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

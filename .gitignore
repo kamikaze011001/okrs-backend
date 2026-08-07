@@ -20,9 +20,10 @@ target/
 *.ipr
 *.env
 *.env*
+!local/application-secrets.example.env
 **/app-secret.yaml
-**/values*.yaml
 *.tgz
+local/.env
 
 ### NetBeans ###
 /nbproject/private/

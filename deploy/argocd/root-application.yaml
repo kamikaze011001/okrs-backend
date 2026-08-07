@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: okrs-root
+  namespace: argocd
+spec:
+  project: okrs-bootstrap
+  source:
+    repoURL: git@github.com:kamikaze011001/okrs-backend.git
+    targetRevision: develop
+    path: deploy/argocd/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true

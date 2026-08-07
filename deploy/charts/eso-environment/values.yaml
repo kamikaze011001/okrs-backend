@@ -1,0 +1,12 @@
+serviceAccount:
+  name: okrs-secrets-reader
+
+workloadIdentity:
+  clientId: ""
+  tenantId: ""
+
+secretStore:
+  name: azure-key-vault
+  vaultUrl: ""
+
+externalSecrets: {}

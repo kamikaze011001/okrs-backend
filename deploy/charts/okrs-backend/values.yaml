@@ -1,0 +1,58 @@
+replicaCount: 1
+
+image:
+  repository: okrs-app
+  pullPolicy: IfNotPresent
+  tag: latest
+
+env:
+  springProfile: default
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: nginx
+  hosts: []
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+probes:
+  startup:
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    failureThreshold: 20
+  liveness:
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    periodSeconds: 5
+    failureThreshold: 2
+
+persistence:
+  enabled: true
+  size: 1Gi
+  mountPath: /app/uploads
+  accessMode: ReadWriteOnce
+  storageClass: ""
+
+secrets:
+  existingSecret: okrs-backend-credentials
+
+migration:
+  enabled: true
+  argocdHook: false
+
+appConfig:
+  SPRING_LIQUIBASE_ENABLED: "false"
+  FILE_STORAGE_PATH: /app/uploads
+  JWT_ACCESS_TOKEN_LIFETIME: "900000"
+  JWT_REFRESH_TOKEN_LIFETIME: "604800000"
