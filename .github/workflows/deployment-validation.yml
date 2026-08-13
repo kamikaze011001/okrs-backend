@@ -41,5 +41,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes shellcheck
 
+      - name: Install kubeconform
+        run: |
+          set -Eeuo pipefail
+          version=v0.6.7
+          curl -sSL --retry 3 \
+            "https://github.com/yannh/kubeconform/releases/download/${version}/kubeconform-linux-amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin kubeconform
+          kubeconform -v
+
       - name: Validate deployment artifacts
         run: ./scripts/validate-deploy.sh

@@ -25,6 +25,19 @@ helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okr
 helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okrs-backend/values/qa.yaml >/dev/null
 helm template okrs-dev-environment deploy/charts/eso-environment --values deploy/charts/eso-environment/values/dev.yaml >/dev/null
 
+printf '[validate] Argo CD manifests\n'
+if command -v kubeconform >/dev/null 2>&1; then
+  kubeconform \
+    -strict \
+    -ignore-missing-schemas \
+    -schema-location default \
+    -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+    deploy/argocd/root-application.yaml \
+    deploy/argocd/apps/
+else
+  printf '[validate] kubeconform not installed; skipping Argo CD manifest schema check.\n'
+fi
+
 if command -v az >/dev/null 2>&1; then
   printf '[validate] Bicep\n'
   az bicep build --file infrastructure/main.bicep --stdout >/dev/null
