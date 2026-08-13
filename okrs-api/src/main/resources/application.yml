@@ -89,8 +89,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,prometheus
   endpoint:
     health:
       probes:
         enabled: true
+  metrics:
+    tags:
+      application: okrs-backend
+      environment: ${SPRING_PROFILES_ACTIVE:local}
