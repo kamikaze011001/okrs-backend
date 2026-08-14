@@ -14,7 +14,8 @@ IMAGE_TAG := latest
 .PHONY: \
 	build namespace secret dependencies app deploy \
 	status logs port-forward rollback restart clean \
-	validate-deploy argocd-status argocd-port-forward
+	validate-deploy argocd-status argocd-port-forward \
+	grafana-port-forward monitoring-status
 
 build:
 	@echo "Building $(IMAGE):$(IMAGE_TAG) in Minikube..."
@@ -111,3 +112,12 @@ argocd-status:
 
 argocd-port-forward:
 	kubectl -n argocd port-forward service/argocd-server 8081:443
+
+monitoring-status:
+	kubectl -n monitoring get pods,services
+	kubectl -n monitoring get servicemonitors.monitoring.coreos.com --all-namespaces
+
+grafana-port-forward:
+	@echo "Grafana on http://localhost:3000 - user 'admin'"
+	@echo "Password: kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d"
+	kubectl -n monitoring port-forward service/kube-prometheus-stack-grafana 3000:80
