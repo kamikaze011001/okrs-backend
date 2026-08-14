@@ -89,6 +89,11 @@ spec:
             kind: PriorityClass
             metadata:
               name: okrs-observability
+              annotations:
+                # Applied ahead of the workloads in this same Application that set
+                # priorityClassName. Without it the API server transiently rejects those
+                # pods with "no PriorityClass found" until Argo retries.
+                argocd.argoproj.io/sync-wave: "-20"
             value: -100
             globalDefault: false
             description: Evict observability workloads before application workloads.

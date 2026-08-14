@@ -27,8 +27,17 @@ spec:
           configMap:
             create: true
             content: |
+              // Only discover pods scheduled on this agent's own node. The chart injects
+              // HOSTNAME from spec.nodeName, so it is the node name rather than the pod
+              // name. Without this selector every DaemonSet replica tails every pod in the
+              // cluster, duplicating each log line once per node.
               discovery.kubernetes "pods" {
                 role = "pod"
+
+                selectors {
+                  role  = "pod"
+                  field = "spec.nodeName=" + sys.env("HOSTNAME")
+                }
               }
 
               discovery.relabel "pod_logs" {
@@ -60,8 +69,7 @@ spec:
               loki.process "parse_json" {
                 stage.json {
                   expressions = {
-                    level  = "level",
-                    logger = "logger_name",
+                    level = "level",
                   }
                 }
 

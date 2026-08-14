@@ -3,6 +3,12 @@ kind: AppProject
 metadata:
   name: okrs-bootstrap
   namespace: argocd
+  annotations:
+    # AppProjects must exist before any Application that references them. The root
+    # Application syncs this directory recursively, so without an explicit wave these
+    # would default to 0 and land after the Applications at -20..-15, leaving them
+    # invalid until the next sync on a first-ever bootstrap.
+    argocd.argoproj.io/sync-wave: "-100"
 spec:
   description: Admin-only project for the OKRs App-of-Apps root
   sourceRepos:
@@ -21,6 +27,8 @@ kind: AppProject
 metadata:
   name: okrs-platform
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-100"
 spec:
   description: Cluster operators and environment secret plumbing
   sourceRepos:
@@ -59,6 +67,8 @@ kind: AppProject
 metadata:
   name: okrs-dev
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-100"
 spec:
   description: Dev application workloads restricted to okrs-dev
   sourceRepos:

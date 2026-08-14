@@ -21,7 +21,10 @@ on:
 
 concurrency:
   group: dev-image-${{ github.ref }}
-  cancel-in-progress: false
+  # Never cancel a push-to-develop run: it pushes an image and commits the pinned
+  # SHA, so an interrupted run can leave dev pointing at an image that was never
+  # published. Pull request runs only verify, so superseding them is safe.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
