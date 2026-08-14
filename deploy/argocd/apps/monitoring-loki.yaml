@@ -33,6 +33,10 @@ spec:
                   period: 24h
           limits_config:
             retention_period: 24h
+          compactor:
+            working_directory: /var/loki/compactor
+            retention_enabled: true
+            delete_request_store: filesystem
         singleBinary:
           replicas: 1
           priorityClassName: okrs-observability

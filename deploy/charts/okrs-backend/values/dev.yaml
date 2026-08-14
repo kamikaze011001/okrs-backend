@@ -28,3 +28,6 @@ appConfig:
 metrics:
   serviceMonitor:
     enabled: true
+
+env:
+  springProfile: dev

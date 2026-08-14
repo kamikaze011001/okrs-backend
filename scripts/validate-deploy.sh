@@ -30,7 +30,6 @@ printf '[validate] Argo CD manifests\n'
 if command -v kubeconform >/dev/null 2>&1; then
   kubeconform \
     -strict \
-    -ignore-missing-schemas \
     -schema-location default \
     -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
     deploy/argocd/root-application.yaml \

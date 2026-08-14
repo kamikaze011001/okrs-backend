@@ -25,6 +25,8 @@ spec:
               value: "-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
             - name: SPRING_PROFILES_ACTIVE
               value: {{ .Values.env.springProfile | quote }}
+            - name: MANAGEMENT_SERVER_PORT
+              value: {{ .Values.service.managementPort | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "okrs-backend.fullname" . }}-config
