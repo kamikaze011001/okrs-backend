@@ -24,3 +24,7 @@ appConfig:
   FILE_STORAGE_PATH: /app/uploads
   JWT_ACCESS_TOKEN_LIFETIME: "900000"
   JWT_REFRESH_TOKEN_LIFETIME: "604800000"
+
+metrics:
+  serviceMonitor:
+    enabled: true

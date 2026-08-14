@@ -24,6 +24,7 @@ helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okr
 helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okrs-backend/values/dev.yaml >/dev/null
 helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okrs-backend/values/qa.yaml >/dev/null
 helm template okrs-dev-environment deploy/charts/eso-environment --values deploy/charts/eso-environment/values/dev.yaml >/dev/null
+helm template okrs-backend deploy/charts/okrs-backend --values deploy/charts/okrs-backend/values/local.yaml --set metrics.serviceMonitor.enabled=true >/dev/null
 
 printf '[validate] Argo CD manifests\n'
 if command -v kubeconform >/dev/null 2>&1; then
