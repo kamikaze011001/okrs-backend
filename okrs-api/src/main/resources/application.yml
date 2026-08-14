@@ -86,6 +86,8 @@ org:
         scheduler:
           NoteDailyPlanSchedule: Please note the daily plan
 management:
+  server:
+    port: 8081
   endpoints:
     web:
       exposure:

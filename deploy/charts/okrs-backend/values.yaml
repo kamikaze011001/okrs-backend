@@ -11,6 +11,7 @@ env:
 service:
   type: ClusterIP
   port: 8080
+  managementPort: 8081
 
 ingress:
   enabled: false
