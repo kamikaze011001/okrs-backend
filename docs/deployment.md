@@ -102,3 +102,27 @@ make validate-deploy
 ```
 
 Local validation skips Bicep when Azure CLI is unavailable. The deployment-validation workflow installs Bicep and ShellCheck and runs the complete static suite.
+
+## Observability
+
+The dev cluster runs an ephemeral in-cluster stack: Prometheus and Grafana from
+`kube-prometheus-stack`, Loki in single-binary mode, and Grafana Alloy as the log collector. All
+storage is `emptyDir`, so telemetry is lost when `down.sh` stops the cluster and Argo CD recreates
+the stack on `resume.sh`. There is no alerting.
+
+```bash
+make monitoring-status
+make grafana-port-forward
+```
+
+Grafana is on `http://localhost:3000` as `admin`. Read the password with:
+
+```bash
+kubectl -n monitoring get secret kube-prometheus-stack-grafana \
+  -o jsonpath='{.data.admin-password}' | base64 -d
+```
+
+Prometheus retains six hours and Loki twenty-four. The application exposes metrics on its
+management port 8081 at `/actuator/prometheus`, which is never routed through the Ingress.
+Application logs are JSON under the `dev` and `qa` profiles and carry the labels `namespace`, `pod`,
+`container`, `app`, and `level` in Loki.

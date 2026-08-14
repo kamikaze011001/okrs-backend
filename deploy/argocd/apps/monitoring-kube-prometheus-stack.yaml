@@ -1,0 +1,109 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-16"
+    argocd.argoproj.io/sync-options: Delete=confirm
+spec:
+  project: okrs-platform
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 88.3.0
+    helm:
+      releaseName: kube-prometheus-stack
+      valuesObject:
+        alertmanager:
+          enabled: false
+        defaultRules:
+          create: false
+        kubeControllerManager:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        prometheusOperator:
+          priorityClassName: okrs-observability
+          resources:
+            requests:
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+        prometheus:
+          prometheusSpec:
+            priorityClassName: okrs-observability
+            retention: 6h
+            retentionSize: 3GB
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            resources:
+              requests:
+                cpu: 200m
+                memory: 512Mi
+              limits:
+                memory: 1536Mi
+            storageSpec:
+              emptyDir:
+                sizeLimit: 4Gi
+        grafana:
+          priorityClassName: okrs-observability
+          persistence:
+            enabled: false
+          resources:
+            requests:
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki.monitoring.svc.cluster.local:3100
+              isDefault: false
+        kubeStateMetrics:
+          enabled: true
+        kube-state-metrics:
+          priorityClassName: okrs-observability
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+        nodeExporter:
+          enabled: true
+        prometheus-node-exporter:
+          priorityClassName: okrs-observability
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+        extraManifests:
+          - apiVersion: scheduling.k8s.io/v1
+            kind: PriorityClass
+            metadata:
+              name: okrs-observability
+            value: -100
+            globalDefault: false
+            description: Evict observability workloads before application workloads.
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - ServerSideApply=true

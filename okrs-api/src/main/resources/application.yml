@@ -86,11 +86,17 @@ org:
         scheduler:
           NoteDailyPlanSchedule: Please note the daily plan
 management:
+  server:
+    port: 8081
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,prometheus
   endpoint:
     health:
       probes:
         enabled: true
+  metrics:
+    tags:
+      application: okrs-backend
+      environment: ${SPRING_PROFILES_ACTIVE:local}
