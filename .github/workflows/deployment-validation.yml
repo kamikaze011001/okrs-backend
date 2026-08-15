@@ -45,9 +45,13 @@ jobs:
         run: |
           set -Eeuo pipefail
           version=v0.6.7
-          curl -sSL --retry 3 \
-            "https://github.com/yannh/kubeconform/releases/download/${version}/kubeconform-linux-amd64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin kubeconform
+          sha256=95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73
+          curl -sSL --retry 3 --fail \
+            --output kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/${version}/kubeconform-linux-amd64.tar.gz"
+          echo "${sha256}  kubeconform.tar.gz" | sha256sum --check --strict
+          sudo tar -xz -C /usr/local/bin -f kubeconform.tar.gz kubeconform
+          rm -f kubeconform.tar.gz
           kubeconform -v
 
       - name: Validate deployment artifacts
