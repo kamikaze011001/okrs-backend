@@ -24,9 +24,25 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
+
+      # The runner host is persistent and not provisioned by GitHub, so tools this
+      # job depends on are checked rather than assumed.
+      - name: Check runner prerequisites
+        run: |
+          set -Eeuo pipefail
+          missing=()
+          for tool in curl tar sha256sum git; do
+            command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing required tools on the runner host: ${missing[*]}" >&2
+            echo "Install them on the runner, then re-run this job." >&2
+            exit 1
+          fi
+          echo "Runner $(uname -s)/$(uname -m): prerequisites present."
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -34,25 +50,54 @@ jobs:
           version: v4.2.0
 
       - name: Install Bicep CLI
-        run: az bicep install
+        run: |
+          set -Eeuo pipefail
+          if ! command -v az >/dev/null 2>&1; then
+            echo "Azure CLI is not installed on this runner." >&2
+            echo "scripts/validate-deploy.sh needs it to compile Bicep templates." >&2
+            exit 1
+          fi
+          if az bicep version >/dev/null 2>&1; then
+            echo "Bicep already installed: $(az bicep version 2>&1 | head -1)"
+          else
+            az bicep install
+          fi
 
       - name: Install ShellCheck
         run: |
+          set -Eeuo pipefail
+          if command -v shellcheck >/dev/null 2>&1; then
+            echo "ShellCheck already present: $(command -v shellcheck)"
+            exit 0
+          fi
+          if ! command -v sudo >/dev/null 2>&1; then
+            echo "ShellCheck is missing and sudo is unavailable on this runner." >&2
+            echo "Install shellcheck on the runner host once, then re-run." >&2
+            exit 1
+          fi
           sudo apt-get update
           sudo apt-get install --yes shellcheck
 
+      # Installed into the job temp directory rather than /usr/local/bin: needs no
+      # sudo, and leaves nothing behind on the persistent host.
       - name: Install kubeconform
         run: |
           set -Eeuo pipefail
           version=v0.6.7
           sha256=95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73
+          if command -v kubeconform >/dev/null 2>&1 && kubeconform -v 2>&1 | grep -q "${version#v}"; then
+            echo "kubeconform ${version} already present: $(command -v kubeconform)"
+            exit 0
+          fi
+          mkdir -p "${RUNNER_TEMP}/bin"
           curl -sSL --retry 3 --fail \
-            --output kubeconform.tar.gz \
+            --output "${RUNNER_TEMP}/kubeconform.tar.gz" \
             "https://github.com/yannh/kubeconform/releases/download/${version}/kubeconform-linux-amd64.tar.gz"
-          echo "${sha256}  kubeconform.tar.gz" | sha256sum --check --strict
-          sudo tar -xz -C /usr/local/bin -f kubeconform.tar.gz kubeconform
-          rm -f kubeconform.tar.gz
-          kubeconform -v
+          echo "${sha256}  ${RUNNER_TEMP}/kubeconform.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}/bin" -f "${RUNNER_TEMP}/kubeconform.tar.gz" kubeconform
+          rm -f "${RUNNER_TEMP}/kubeconform.tar.gz"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/kubeconform" -v
 
       - name: Validate deployment artifacts
         run: ./scripts/validate-deploy.sh
