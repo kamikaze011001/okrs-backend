@@ -49,12 +49,14 @@ jobs:
           fi
           echo "Runner $(uname -s)/$(uname -m): prerequisites present."
 
-      # azure/setup-helm downloads through Node, which resolves get.helm.sh (Azure
-      # Front Door, dual-stack) verbatim and takes the AAAA record. On a host with a
-      # configured but unroutable IPv6 address that fails outright with no fallback --
-      # exactly how this job failed on its first self-hosted run, while Maven downloads
-      # in the sibling job succeeded. curl does happy-eyeballs fallback, so Helm is
-      # fetched directly here, into the job temp directory like kubeconform below.
+      # azure/setup-helm could not reach https://get.helm.sh from this runner (three
+      # attempts, all refused) while the sibling verify job pulled Maven and its whole
+      # dependency tree over the same egress, and curl fetches the identical URL here
+      # without trouble. The likeliest mechanism is that the action downloads through
+      # Node, which resolves dual-stack get.helm.sh verbatim and commits to the AAAA
+      # record with no fallback; curl does happy-eyeballs instead. That mechanism is a
+      # hypothesis -- what is confirmed is that curl works where the action does not.
+      # Fetched into the job temp directory like kubeconform below.
       - name: Install Helm
         run: |
           set -Eeuo pipefail
