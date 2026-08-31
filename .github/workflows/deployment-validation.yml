@@ -44,10 +44,31 @@ jobs:
           fi
           echo "Runner $(uname -s)/$(uname -m): prerequisites present."
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v4.2.0
+      # azure/setup-helm downloads through Node, which resolves get.helm.sh (Azure
+      # Front Door, dual-stack) verbatim and takes the AAAA record. On a host with a
+      # configured but unroutable IPv6 address that fails outright with no fallback --
+      # exactly how this job failed on its first self-hosted run, while Maven downloads
+      # in the sibling job succeeded. curl does happy-eyeballs fallback, so Helm is
+      # fetched directly here, into the job temp directory like kubeconform below.
+      - name: Install Helm
+        run: |
+          set -Eeuo pipefail
+          version=v4.2.0
+          sha256=97dbeb971be4ac4b27e3839976d9564c0fb35c6f3b1da89dd1e292d236af4096
+          if command -v helm >/dev/null 2>&1 && helm version --short 2>/dev/null | grep -q "${version}"; then
+            echo "Helm ${version} already present: $(command -v helm)"
+            exit 0
+          fi
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSL --retry 3 --fail \
+            --output "${RUNNER_TEMP}/helm.tar.gz" \
+            "https://get.helm.sh/helm-${version}-linux-amd64.tar.gz"
+          echo "${sha256}  ${RUNNER_TEMP}/helm.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}" -f "${RUNNER_TEMP}/helm.tar.gz" linux-amd64/helm
+          mv "${RUNNER_TEMP}/linux-amd64/helm" "${RUNNER_TEMP}/bin/helm"
+          rm -rf "${RUNNER_TEMP}/helm.tar.gz" "${RUNNER_TEMP}/linux-amd64"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/helm" version --short
 
       - name: Install Bicep CLI
         run: |
