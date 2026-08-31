@@ -34,11 +34,16 @@ jobs:
         run: |
           set -Eeuo pipefail
           missing=()
-          for tool in curl tar sha256sum git; do
+          for tool in curl tar sha256sum git az; do
             command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
           done
+          # ShellCheck is installable later via apt, but only if sudo is available.
+          if ! command -v shellcheck >/dev/null 2>&1 && ! command -v sudo >/dev/null 2>&1; then
+            missing+=("shellcheck (or sudo, to install it)")
+          fi
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "Missing required tools on the runner host: ${missing[*]}" >&2
+            echo "Azure CLI compiles the Bicep templates; the rest fetch and check pinned tools." >&2
             echo "Install them on the runner, then re-run this job." >&2
             exit 1
           fi
