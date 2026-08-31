@@ -37,10 +37,6 @@ jobs:
           for tool in curl tar sha256sum git az; do
             command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
           done
-          # ShellCheck is installable later via apt, but only if sudo is available.
-          if ! command -v shellcheck >/dev/null 2>&1 && ! command -v sudo >/dev/null 2>&1; then
-            missing+=("shellcheck (or sudo, to install it)")
-          fi
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "Missing required tools on the runner host: ${missing[*]}" >&2
             echo "Azure CLI compiles the Bicep templates; the rest fetch and check pinned tools." >&2
@@ -91,20 +87,29 @@ jobs:
             az bicep install
           fi
 
+      # Installed from the upstream release rather than apt: the runner account has
+      # no passwordless sudo, so "sudo apt-get install" cannot run unattended here.
+      # Pinning the version also keeps CI on the same ShellCheck the repo is developed
+      # against, instead of whatever the host distribution happens to package.
       - name: Install ShellCheck
         run: |
           set -Eeuo pipefail
-          if command -v shellcheck >/dev/null 2>&1; then
-            echo "ShellCheck already present: $(command -v shellcheck)"
+          version=v0.11.0
+          sha256=b7af85e41cc99489dcc21d66c6d5f3685138f06d34651e6d34b42ec6d54fe6f6
+          if command -v shellcheck >/dev/null 2>&1 && shellcheck --version | grep -q "version: ${version#v}"; then
+            echo "ShellCheck ${version} already present: $(command -v shellcheck)"
             exit 0
           fi
-          if ! command -v sudo >/dev/null 2>&1; then
-            echo "ShellCheck is missing and sudo is unavailable on this runner." >&2
-            echo "Install shellcheck on the runner host once, then re-run." >&2
-            exit 1
-          fi
-          sudo apt-get update
-          sudo apt-get install --yes shellcheck
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSL --retry 3 --fail \
+            --output "${RUNNER_TEMP}/shellcheck.tar.gz" \
+            "https://github.com/koalaman/shellcheck/releases/download/${version}/shellcheck-${version}.linux.x86_64.tar.gz"
+          echo "${sha256}  ${RUNNER_TEMP}/shellcheck.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}" -f "${RUNNER_TEMP}/shellcheck.tar.gz" "shellcheck-${version}/shellcheck"
+          mv "${RUNNER_TEMP}/shellcheck-${version}/shellcheck" "${RUNNER_TEMP}/bin/shellcheck"
+          rm -rf "${RUNNER_TEMP}/shellcheck.tar.gz" "${RUNNER_TEMP}/shellcheck-${version}"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/shellcheck" --version | head -2
 
       # Installed into the job temp directory rather than /usr/local/bin: needs no
       # sudo, and leaves nothing behind on the persistent host.
