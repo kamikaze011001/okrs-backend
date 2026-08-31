@@ -10,6 +10,9 @@ on:
       - 'core/**'
       - 'pom.xml'
       - 'Dockerfile'
+      - 'mvnw'
+      - '.mvn/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'okrs-api/**'
@@ -17,6 +20,9 @@ on:
       - 'core/**'
       - 'pom.xml'
       - 'Dockerfile'
+      - 'mvnw'
+      - '.mvn/**'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 concurrency:
