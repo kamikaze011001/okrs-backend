@@ -9,6 +9,19 @@ param githubEnvironmentName string
 param acrName string
 param tags object = {}
 
+@description('Numeric GitHub account ID of the repository owner.')
+param githubOwnerId string
+
+@description('Numeric GitHub repository ID.')
+param githubRepositoryId string
+
+// GitHub now issues OIDC subjects carrying the numeric owner and repository IDs
+// alongside their names, so a credential matching only 'repo:owner/name:...' is
+// never presented and every exchange fails with AADSTS700213. The IDs survive a
+// rename, which is the point of the format; read them back from the API with
+// `gh api repos/OWNER/REPO --jq .id` if this ever needs rebuilding.
+var subjectPrefix = 'repo:${githubOwner}@${githubOwnerId}/${githubRepository}@${githubRepositoryId}'
+
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: name
   location: location
@@ -23,7 +36,7 @@ resource githubFederatedCredential 'Microsoft.ManagedIdentity/userAssignedIdenti
       'api://AzureADTokenExchange'
     ]
     issuer: 'https://token.actions.githubusercontent.com'
-    subject: 'repo:${githubOwner}/${githubRepository}:ref:refs/heads/${githubBranch}'
+    subject: '${subjectPrefix}:ref:refs/heads/${githubBranch}'
   }
 }
 
@@ -38,7 +51,7 @@ resource githubEnvironmentFederatedCredential 'Microsoft.ManagedIdentity/userAss
       'api://AzureADTokenExchange'
     ]
     issuer: 'https://token.actions.githubusercontent.com'
-    subject: 'repo:${githubOwner}/${githubRepository}:environment:${githubEnvironmentName}'
+    subject: '${subjectPrefix}:environment:${githubEnvironmentName}'
   }
 }
 

@@ -13,6 +13,10 @@ param aksVmSize = 'Standard_D4s_v6'
 
 param githubOwner = 'kamikaze011001'
 param githubRepository = 'okrs-backend'
+// GitHub embeds these numeric IDs in the OIDC subject it presents.
+// Read them back with: gh api repos/kamikaze011001/okrs-backend --jq .id
+param githubOwnerId = '106855369'
+param githubRepositoryId = '1308237376'
 param githubBranch = 'develop'
 param githubEnvironmentName = 'development'
 
