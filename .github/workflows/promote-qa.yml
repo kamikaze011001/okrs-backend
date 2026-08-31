@@ -20,13 +20,28 @@ env:
 
 jobs:
   promote:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     environment: development
     steps:
       - name: Check out develop
         uses: actions/checkout@v4
         with:
           ref: develop
+
+      # ubuntu-latest ships the Azure and GitHub CLIs; a self-hosted host may not.
+      - name: Check runner prerequisites
+        run: |
+          set -Eeuo pipefail
+          missing=()
+          command -v az >/dev/null 2>&1 || missing+=("az")
+          command -v gh >/dev/null 2>&1 || missing+=("gh")
+          command -v git >/dev/null 2>&1 || missing+=("git")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing required tools on the runner host: ${missing[*]}" >&2
+            echo "This job needs Azure CLI to verify the image and GitHub CLI to open the promotion PR." >&2
+            exit 1
+          fi
+          echo "Azure CLI, GitHub CLI, and git available."
 
       - name: Refuse promotion until QA is enabled
         run: |

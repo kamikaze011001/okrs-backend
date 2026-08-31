@@ -24,35 +24,113 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v4.2.0
+      # The runner host is persistent and not provisioned by GitHub, so tools this
+      # job depends on are checked rather than assumed.
+      - name: Check runner prerequisites
+        run: |
+          set -Eeuo pipefail
+          missing=()
+          for tool in curl tar sha256sum git az; do
+            command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "Missing required tools on the runner host: ${missing[*]}" >&2
+            echo "Azure CLI compiles the Bicep templates; the rest fetch and check pinned tools." >&2
+            echo "Install them on the runner, then re-run this job." >&2
+            exit 1
+          fi
+          echo "Runner $(uname -s)/$(uname -m): prerequisites present."
+
+      # azure/setup-helm could not reach https://get.helm.sh from this runner (three
+      # attempts, all refused) while the sibling verify job pulled Maven and its whole
+      # dependency tree over the same egress, and curl fetches the identical URL here
+      # without trouble. The likeliest mechanism is that the action downloads through
+      # Node, which resolves dual-stack get.helm.sh verbatim and commits to the AAAA
+      # record with no fallback; curl does happy-eyeballs instead. That mechanism is a
+      # hypothesis -- what is confirmed is that curl works where the action does not.
+      # Fetched into the job temp directory like kubeconform below.
+      - name: Install Helm
+        run: |
+          set -Eeuo pipefail
+          version=v4.2.0
+          sha256=97dbeb971be4ac4b27e3839976d9564c0fb35c6f3b1da89dd1e292d236af4096
+          if command -v helm >/dev/null 2>&1 && helm version --short 2>/dev/null | grep -q "${version}"; then
+            echo "Helm ${version} already present: $(command -v helm)"
+            exit 0
+          fi
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSL --retry 3 --fail \
+            --output "${RUNNER_TEMP}/helm.tar.gz" \
+            "https://get.helm.sh/helm-${version}-linux-amd64.tar.gz"
+          echo "${sha256}  ${RUNNER_TEMP}/helm.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}" -f "${RUNNER_TEMP}/helm.tar.gz" linux-amd64/helm
+          mv "${RUNNER_TEMP}/linux-amd64/helm" "${RUNNER_TEMP}/bin/helm"
+          rm -rf "${RUNNER_TEMP}/helm.tar.gz" "${RUNNER_TEMP}/linux-amd64"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/helm" version --short
 
       - name: Install Bicep CLI
-        run: az bicep install
+        run: |
+          set -Eeuo pipefail
+          if ! command -v az >/dev/null 2>&1; then
+            echo "Azure CLI is not installed on this runner." >&2
+            echo "scripts/validate-deploy.sh needs it to compile Bicep templates." >&2
+            exit 1
+          fi
+          if az bicep version >/dev/null 2>&1; then
+            echo "Bicep already installed: $(az bicep version 2>&1 | head -1)"
+          else
+            az bicep install
+          fi
 
+      # Installed from the upstream release rather than apt: the runner account has
+      # no passwordless sudo, so "sudo apt-get install" cannot run unattended here.
+      # Pinning the version also keeps CI on the same ShellCheck the repo is developed
+      # against, instead of whatever the host distribution happens to package.
       - name: Install ShellCheck
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes shellcheck
+          set -Eeuo pipefail
+          version=v0.11.0
+          sha256=b7af85e41cc99489dcc21d66c6d5f3685138f06d34651e6d34b42ec6d54fe6f6
+          if command -v shellcheck >/dev/null 2>&1 && shellcheck --version | grep -q "version: ${version#v}"; then
+            echo "ShellCheck ${version} already present: $(command -v shellcheck)"
+            exit 0
+          fi
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -sSL --retry 3 --fail \
+            --output "${RUNNER_TEMP}/shellcheck.tar.gz" \
+            "https://github.com/koalaman/shellcheck/releases/download/${version}/shellcheck-${version}.linux.x86_64.tar.gz"
+          echo "${sha256}  ${RUNNER_TEMP}/shellcheck.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}" -f "${RUNNER_TEMP}/shellcheck.tar.gz" "shellcheck-${version}/shellcheck"
+          mv "${RUNNER_TEMP}/shellcheck-${version}/shellcheck" "${RUNNER_TEMP}/bin/shellcheck"
+          rm -rf "${RUNNER_TEMP}/shellcheck.tar.gz" "${RUNNER_TEMP}/shellcheck-${version}"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/shellcheck" --version | head -2
 
+      # Installed into the job temp directory rather than /usr/local/bin: needs no
+      # sudo, and leaves nothing behind on the persistent host.
       - name: Install kubeconform
         run: |
           set -Eeuo pipefail
           version=v0.6.7
           sha256=95f14e87aa28c09d5941f11bd024c1d02fdc0303ccaa23f61cef67bc92619d73
+          if command -v kubeconform >/dev/null 2>&1 && kubeconform -v 2>&1 | grep -q "${version#v}"; then
+            echo "kubeconform ${version} already present: $(command -v kubeconform)"
+            exit 0
+          fi
+          mkdir -p "${RUNNER_TEMP}/bin"
           curl -sSL --retry 3 --fail \
-            --output kubeconform.tar.gz \
+            --output "${RUNNER_TEMP}/kubeconform.tar.gz" \
             "https://github.com/yannh/kubeconform/releases/download/${version}/kubeconform-linux-amd64.tar.gz"
-          echo "${sha256}  kubeconform.tar.gz" | sha256sum --check --strict
-          sudo tar -xz -C /usr/local/bin -f kubeconform.tar.gz kubeconform
-          rm -f kubeconform.tar.gz
-          kubeconform -v
+          echo "${sha256}  ${RUNNER_TEMP}/kubeconform.tar.gz" | sha256sum --check --strict
+          tar -xz -C "${RUNNER_TEMP}/bin" -f "${RUNNER_TEMP}/kubeconform.tar.gz" kubeconform
+          rm -f "${RUNNER_TEMP}/kubeconform.tar.gz"
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/bin/kubeconform" -v
 
       - name: Validate deployment artifacts
         run: ./scripts/validate-deploy.sh
