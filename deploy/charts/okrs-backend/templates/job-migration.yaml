@@ -53,9 +53,14 @@ spec:
 
                 sleep 2
               done
+          # Deliberately does NOT read the chart's ConfigMap. As a PreSync hook this Job
+          # runs before the main sync applies it, so referencing it fails the first
+          # install outright with "configmap <name>-config not found" and no pod ever
+          # starts. Nothing is lost: the two appConfig keys this container would consume
+          # are both overridden below, and the rest (JWT lifetimes) do not affect a
+          # schema migration. Datasource settings come from the secret, which External
+          # Secrets owns and which therefore exists independently of this sync.
           envFrom:
-            - configMapRef:
-                name: {{ include "okrs-backend.fullname" . }}-config
             - secretRef:
                 name: {{ .Values.secrets.existingSecret }}
           env:
