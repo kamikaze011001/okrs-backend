@@ -39,6 +39,12 @@ param githubOwner string = 'kamikaze011001'
 @description('GitHub repository name used by the CI federated credential.')
 param githubRepository string = 'okrs-backend'
 
+@description('Numeric GitHub account ID of the repository owner, part of the OIDC subject.')
+param githubOwnerId string = '106855369'
+
+@description('Numeric GitHub repository ID, part of the OIDC subject.')
+param githubRepositoryId string = '1308237376'
+
 @description('Branch allowed to exchange a GitHub OIDC token for the CI identity.')
 param githubBranch string = 'develop'
 
@@ -95,7 +101,9 @@ module ciIdentity './platform/modules/ci-identity.bicep' = {
     name: 'id-${projectName}-${platformEnvironmentName}-github'
     location: location
     githubOwner: githubOwner
+    githubOwnerId: githubOwnerId
     githubRepository: githubRepository
+    githubRepositoryId: githubRepositoryId
     githubBranch: githubBranch
     githubEnvironmentName: githubEnvironmentName
     acrName: containerRegistry.outputs.name
