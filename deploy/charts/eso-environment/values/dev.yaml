@@ -2,7 +2,12 @@ serviceAccount:
   name: okrs-secrets-reader
 
 workloadIdentity:
-  clientId: 1723ba78-ed11-46c7-8cfd-ddcf824b015d
+  # Client ID of id-okrs-dev-hk-eso. This is a deployment output, not a constant: if
+  # the identity is ever recreated the value here goes stale and the SecretStore fails
+  # with "InvalidProviderConfig: unable to create client", which names neither the
+  # identity nor the mismatch. Read it back with:
+  #   az identity show -g rg-okrs-dev-hk -n id-okrs-dev-hk-eso --query clientId -o tsv
+  clientId: 44512923-8a4a-46c5-b9e1-7d675a1d8851
   tenantId: f776e96a-9b62-4361-8ed4-89004810cb3a
 
 secretStore:
