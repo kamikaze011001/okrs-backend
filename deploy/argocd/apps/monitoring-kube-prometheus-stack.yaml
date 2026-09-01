@@ -27,6 +27,15 @@ spec:
           enabled: false
         kubeProxy:
           enabled: false
+        # The only resource this chart places outside the monitoring namespace: a
+        # Service in kube-system. The okrs-platform project does not list kube-system
+        # as a destination, so the whole Application failed to sync with "namespace
+        # kube-system is not permitted in project 'okrs-platform'". Adding that
+        # destination would grant the project '*/*' write access across kube-system for
+        # one metrics Service, so the scrape is dropped instead -- consistent with the
+        # control-plane scrapes already disabled above.
+        coreDns:
+          enabled: false
         prometheusOperator:
           priorityClassName: okrs-observability
           resources:
