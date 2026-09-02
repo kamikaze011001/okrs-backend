@@ -26,6 +26,8 @@ migration:
   argocdHook: true
 
 appConfig:
+  # Azure Redis Enterprise is TLS-only; see the ssl comment in application.yml.
+  REDIS_SSL: "true"
   SPRING_LIQUIBASE_ENABLED: "false"
   FILE_STORAGE_PATH: /app/uploads
   JWT_ACCESS_TOKEN_LIFETIME: "900000"
