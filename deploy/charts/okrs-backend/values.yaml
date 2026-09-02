@@ -38,6 +38,13 @@ probes:
     periodSeconds: 5
     failureThreshold: 2
 
+strategy:
+  # Must be Recreate wherever persistence.accessMode is ReadWriteOnce, which is the
+  # default below: a RWO volume attaches to one node at a time, so RollingUpdate
+  # deadlocks waiting for the outgoing pod to release it. Environments that override
+  # accessMode to ReadWriteMany override this to RollingUpdate too.
+  type: Recreate
+
 persistence:
   enabled: true
   size: 1Gi

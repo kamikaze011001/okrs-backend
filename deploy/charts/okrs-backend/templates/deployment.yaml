@@ -6,6 +6,12 @@ metadata:
     {{- include "okrs-backend.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  # A ReadWriteOnce volume can be attached to one node at a time, so the default
+  # RollingUpdate (maxSurge 1, maxUnavailable 0) deadlocks on a single-node cluster:
+  # the replacement pod waits for a volume the outgoing pod still holds. Environments
+  # on RWO storage set this to Recreate and accept a few seconds of downtime.
+  strategy:
+    type: {{ .Values.strategy.type }}
   selector:
     matchLabels:
       {{- include "okrs-backend.selectorLabels" . | nindent 6 }}
