@@ -1,6 +1,6 @@
 image:
   repository: acrokrsdevydycrv67hdqyc.azurecr.io/okrs-app
-  tag: db2931a62a6de8d912f385e2583c0c1f540e8255
+  tag: 2adb8b0a6248997dca77eaa8a0ce9371e9bcc4c8
   pullPolicy: IfNotPresent
 
 ingress:
