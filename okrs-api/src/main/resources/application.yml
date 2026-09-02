@@ -64,6 +64,12 @@ spring:
     port: ${REDIS_PORT:}
     password: ${REDIS_PASSWORD:}
     client-type: jedis
+    # Azure Cache for Redis Enterprise serves TLS only (clientProtocol: Encrypted on
+    # port 10000). Connecting in plaintext is not refused -- the server accepts the
+    # socket and drops it mid-handshake, which surfaces as "Unexpected end of stream"
+    # and reads like a broken cache rather than a missing setting. Defaults off so the
+    # plaintext valkey used by docker-compose keeps working; dev and qa opt in.
+    ssl: ${REDIS_SSL:false}
   #MAIL
   mail:
     default-encoding: UTF-8
