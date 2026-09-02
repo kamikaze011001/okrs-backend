@@ -2,7 +2,7 @@
 tags: [ci, cd, oidc, diagnosis, false-confidence, silent-failure]
 problem_type: bug-pattern
 date: 2026-09-01
-times_seen: 1
+times_seen: 2
 ---
 # A path that has never run green hides N failures, not one
 
@@ -22,6 +22,13 @@ cleared:
 Only the first and third came from the migration. Blockers 4 and 5 had been latent since the
 pipeline was written: `build-push-pin` had failed on `ubuntu-latest` with the identical
 `azure/login` error two and a half weeks earlier, on every merge to `develop`, and nobody read it.
+
+A second instance, two days later: activating the Argo CD root Application for the first
+time took five more fixes, in series — an AppProject forbidding a chart's `kube-system`
+Service, CRDs too large for a client-side apply, a PreSync hook referencing a ConfigMap
+its own sync had not applied yet, a stale workload identity client ID, and a storage
+provisioner that could not create its backing account. Every one sat in a path deferred
+since the platform was built, waiting on an image pin that had never existed.
 
 **Root cause:** Two compounding effects. A step that has never executed provides no evidence that
 any *later* step works, so failures can only be discovered serially — each fix buys exactly one more

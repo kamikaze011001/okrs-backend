@@ -175,10 +175,13 @@ configure_kube_context() {
 
 bootstrap_argocd() {
   require_commands helm kubectl
+  # az aks get-credentials names the context after the cluster, so pass it through
+  # explicitly. Relying on it being current leaves the bootstrap one stray
+  # kubectl config use-context away from installing Argo CD in another cluster.
   if [[ -n "$1" ]]; then
-    "$REPO_ROOT/scripts/bootstrap-argocd.sh" --repo-key "$1"
+    "$REPO_ROOT/scripts/bootstrap-argocd.sh" --context "$AKS_NAME" --repo-key "$1"
   else
-    "$REPO_ROOT/scripts/bootstrap-argocd.sh"
+    "$REPO_ROOT/scripts/bootstrap-argocd.sh" --context "$AKS_NAME"
   fi
 }
 
