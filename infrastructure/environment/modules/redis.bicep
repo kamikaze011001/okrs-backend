@@ -40,7 +40,13 @@ resource redisDatabase 'Microsoft.Cache/redisEnterprise/databases@2025-04-01' = 
   properties: {
     clientProtocol: 'Encrypted'
     port: port
-    clusteringPolicy: 'OSSCluster'
+    // OSSCluster speaks the Redis Cluster protocol and answers with MOVED redirects,
+    // which only a cluster-aware client follows. The application configures Spring
+    // Data Redis as a standalone Jedis client, so every command died with
+    // "JedisMovedDataException: MOVED 3878 <ip>:8501". EnterpriseCluster fronts the
+    // shards with a proxy and presents one endpoint, which is what a standalone
+    // client -- and a single-node cache used only for OTP and session state -- wants.
+    clusteringPolicy: 'EnterpriseCluster'
     evictionPolicy: 'NoEviction'
     persistence: {
       aofEnabled: false
