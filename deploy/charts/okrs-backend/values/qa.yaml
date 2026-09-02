@@ -12,6 +12,10 @@ persistence:
   accessMode: ReadWriteMany
   storageClass: azurefile-csi
 
+# Safe here only because the volume above is ReadWriteMany.
+strategy:
+  type: RollingUpdate
+
 secrets:
   existingSecret: okrs-backend-credentials
 

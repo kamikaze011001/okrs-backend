@@ -7,10 +7,16 @@ ingress:
   enabled: false
   hosts: []
 
+# The AKS-managed azurefile-csi provisioner cannot create its backing storage
+# account on this cluster -- every attempt fails with "failed to ensure storage
+# account: authenticated requests are not permitted for non TLS protected (https)
+# endpoints" -- so the PVC never binds and the pod stays Pending forever. Azure Disk
+# provisions fine, costs less than a storage account, and ReadWriteOnce is sufficient
+# at replicaCount 1. qa still uses azurefile, where multiple replicas need RWX.
 persistence:
   enabled: true
-  accessMode: ReadWriteMany
-  storageClass: azurefile-csi
+  accessMode: ReadWriteOnce
+  storageClass: managed-csi
 
 secrets:
   existingSecret: okrs-backend-credentials
