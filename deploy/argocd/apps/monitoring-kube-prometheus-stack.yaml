@@ -64,11 +64,17 @@ spec:
           priorityClassName: okrs-observability
           persistence:
             enabled: false
+          # 256Mi was sized against an empty cluster and held only while nobody used
+          # Grafana. Opening a dashboard that queries Prometheus took it straight past
+          # the limit: OOMKilled, exit 137, which surfaces to whoever is browsing as a
+          # port-forward dropping mid-session rather than as an out-of-memory error.
+          # The node has room -- 11.8Gi allocatable, 24% requested -- and a metrics UI
+          # that cannot render a dashboard is not doing its job.
           resources:
             requests:
-              memory: 128Mi
-            limits:
               memory: 256Mi
+            limits:
+              memory: 512Mi
           additionalDataSources:
             - name: Loki
               type: loki
