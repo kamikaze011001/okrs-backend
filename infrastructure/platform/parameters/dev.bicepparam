@@ -20,8 +20,11 @@ param githubRepositoryId = '1308237376'
 param githubBranch = 'develop'
 param githubEnvironmentName = 'development'
 
-// Keep true until the OIDC workflow has pushed successfully once; then set false.
-param acrAdminUserEnabled = true
+// OIDC has now pushed successfully (okrs-app:db2931a6..., 2026-08-31), so the admin
+// user is no longer the fallback path and is disabled. The ACR_USERNAME and
+// ACR_PASSWORD secrets on the GitHub development environment are dead once this is
+// deployed and should be deleted.
+param acrAdminUserEnabled = false
 param budgetAmount = 50
 param budgetStartDate = '2026-07-01T00:00:00Z'
 
